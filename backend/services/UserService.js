@@ -1,11 +1,5 @@
 const UserModel = require("../models/UserModel");
-const pepper = process.env.PEPPER;
 const User = new UserModel();
-
-if (!pepper) {
-  console.log("Sem PEPPER nas variaveis de ambiente");
-  process.exit(1);
-}
 
 module.exports = class UserService {
   constructor() {}

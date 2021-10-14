@@ -1,50 +1,8 @@
 let passport = require("../config/passport");
 const express = require("express");
 const router = express.Router();
-const address = process.env.REDIRECT;
 
-// Facebook Login
-router.get(
-  "/facebook",
-  passport.authenticate("facebook", {
-    scope: ["email"],
-  })
-);
-
-router.get(
-  "/facebook/callback",
-  passport.authenticate("facebook", {
-    failureRedirect: `${address}/login`,
-    failureFlash: true,
-  }),
-  (req, res) => {
-    let rota = req.user.role === "admin" ? "dashboard" : "cliente";
-    res.redirect(`${address}/${rota}`);
-  }
-);
-
-// Google Login
-router.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    prompt: "select_account",
-  })
-);
-
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: `${address}/login`,
-    failureFlash: true,
-  }),
-  (req, res) => {
-    let rota = req.user.role === "admin" ? "dashboard" : "cliente";
-    res.redirect(`${address}/${rota}`);
-  }
-);
-
-// Local Login
+// Login local
 router.post("/login", function (req, res) {
   const { username, password } = req.body;
   if (!username || !password)
@@ -61,10 +19,10 @@ router.post("/login", function (req, res) {
 // Logout
 router.get("/logout", (req, res) => {
   req.logout();
-  res.status(200).send("User has logged out...");
+  res.status(200).send("Usuário desconectou do sistema...");
 });
 
-//
+// Checa existência de sessão no frontend
 router.get("/user", (req, res) => {
   if (req.user) {
     res.status(200).send(req.user);

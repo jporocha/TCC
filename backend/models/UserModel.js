@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
 const pepper = process.env.PEPPER;
 const mailer = require("../helpers/nodemailer");
 
@@ -11,7 +10,6 @@ if (!pepper) {
 }
 
 let AddressSchema = new mongoose.Schema({
-  nome: String,
   rua: String,
   numero: String,
   complemento: String,
@@ -19,54 +17,38 @@ let AddressSchema = new mongoose.Schema({
   cep: String,
   cidade: String,
   estado: String,
-  index: Number,
-});
-
-let ContactSchema = new mongoose.Schema({
-  nome: String,
-  position: String,
-  phone: String,
-  email: String,
-  index: Number,
 });
 
 let userSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: false, lowercase: true },
-  role: { type: String, default: "cliente" },
+  email: { type: String, required: true, lowercase: true },
   passwordHash: { type: String, required: false },
-  facebookId: { type: Number, required: false },
-  googleId: { type: Number, required: false },
-  localStrategy: { type: Boolean, default: false },
-  refreshPassToken: { type: String },
-  cnpj: String,
-  inscricao: String,
-  razaoSocial: String,
-  addr: {
-    type: [AddressSchema],
-    default: [],
-  },
-  contatos: {
-    type: [ContactSchema],
-    default: [],
-  },
-  mainAddress: {
-    type: Number,
-    default: -1,
-  },
-  mainContact: {
-    type: Number,
-    default: -1,
-  },
+  role: { type: String, default: "" },
+  emphasis: String,
+  partners: String,
+  refreshPassToken: String,
+  refreshExpiration: Date,
+  accessToken: String,
+  accessExpiration: Date,
+  dateOfBirth: String,
+  cellPhone: String,
+  addr: AddressSchema,
+  nameOfMother: String,
+  salary: Number,
+  hourlyRate: Number,
+  enabled: Boolean,
 });
 
-// Para registro de estratégia local
+// Para cadastro de usuário
 userSchema.methods.createUser = async function (user) {
   try {
     let userExists = await mongoose
       .model("User")
-      .findOne({ email: user.email, localStrategy: true });
+      .findOne({ email: user.email });
     if (userExists) throw "E-mail já cadastrado.";
+    user.password = user.password
+      ? user.password
+      : crypto.randomBytes(20).toString("hex");
     user.passwordHash = await bcrypt.hash(user.password + pepper, 8);
     delete user.password;
     let newUser = new mongoose.model("User")(user);
@@ -77,31 +59,24 @@ userSchema.methods.createUser = async function (user) {
   }
 };
 
-// Para login via social media
-userSchema.methods.FindOrCreateUser = async function (user, userStrategy) {
-  try {
-    let userExists = await mongoose.model("User").findOne(userStrategy);
-    if (userExists) return { user: userExists };
-    let newUser = new mongoose.model("User")(user);
-    await newUser.save();
-    return { user: newUser };
-  } catch (e) {
-    return { error: e };
-  }
-};
-
-// Para login via estratégia local
+// Para login de usuário
 userSchema.methods.validateLogin = async function (user) {
   try {
     const userExists = await mongoose
       .model("User")
-      .findOne({ email: user.email, localStrategy: true });
+      .findOne({ email: user.email });
     if (!userExists) throw "Usuário ou senha inválidos.";
-    const validateUser = await bcrypt.compare(
-      `${user.password}${pepper}`,
-      userExists.passwordHash
-    );
-    if (!validateUser) throw "Usuário ou senha inválidos.";
+    if (!user.accessToken) {
+      const validateUser = await bcrypt.compare(
+        `${user.password}${pepper}`,
+        userExists.passwordHash
+      );
+      if (!validateUser) throw "Usuário ou senha inválidos.";
+    } else {
+      if (!userExists.accessToken || user.accessToken != userExists.accessToken)
+        throw "Token de acesso inválido";
+      userExists.accessToken = null;
+    }
     return { user: userExists };
   } catch (e) {
     return { error: e };
@@ -113,6 +88,7 @@ userSchema.methods.createToken = async function (id) {
   try {
     const userExists = await mongoose.model("User").findById(id);
     userExists.refreshPassToken = crypto.randomBytes(20).toString("hex");
+    userExists.refreshExpiration = new Date();
     await userExists.save();
     await mailer(
       userExists.email,
@@ -120,7 +96,28 @@ userSchema.methods.createToken = async function (id) {
       userExists.refreshPassToken,
       userExists.refreshPassToken
     );
-    return { msg: "Token criado com sucesso. Verifique seu e-mail." };
+    return {
+      msg: "Token de recuperação de senha criado com sucesso. Verifique seu e-mail.",
+    };
+  } catch (e) {
+    return { error: e };
+  }
+};
+
+// Criar token de acesso único
+userSchema.methods.createAccessToken = async function (id) {
+  try {
+    const userExists = await mongoose.model("User").findById(id);
+    userExists.accessExpiration = new Date();
+    userExists.accessToken = crypto.randomBytes(20).toString("hex");
+    await userExists.save();
+    await mailer(
+      userExists.email,
+      "Seu token para acesso",
+      userExists.accessToken,
+      userExists.accessToken
+    );
+    return { msg: "Token de acesso criado com sucesso. Verifique seu e-mail." };
   } catch (e) {
     return { error: e };
   }

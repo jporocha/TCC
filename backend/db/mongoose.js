@@ -1,16 +1,16 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const connectionString=`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@tcc.uzrpa.mongodb.net/neomecanica`
+const connectionString = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@tcc.uzrpa.mongodb.net/${process.env.MONGO_BASE}`;
 
 mongoose.connect(connectionString, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
 });
 
 const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'Falha na conexão:'));
-db.once('open', function() {
-  console.log('Conexão à base de dados estabelecida com sucesso...')
+db.on("error", console.error.bind(console, "Falha na conexão:"));
+db.once("open", function () {
+  console.log("Conexão à base de dados estabelecida com sucesso...");
 });
