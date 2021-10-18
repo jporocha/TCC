@@ -1,3 +1,5 @@
+// /api/auth/
+
 let passport = require("../config/passport");
 const express = require("express");
 const router = express.Router();
@@ -27,7 +29,7 @@ router.get("/user", (req, res) => {
   if (req.user) {
     res.status(200).send(req.user);
   } else {
-    res.status(200).send(null);
+    res.status(400).send(null);
   }
 });
 

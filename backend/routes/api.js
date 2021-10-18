@@ -3,7 +3,6 @@ const router = express.Router();
 
 router.use("/users", require("./UserRouter.js"));
 router.use("/auth", require("./AuthRouter.js"));
-router.use("/message", require("./MessageRouter.js"));
-router.use("/budget", require("./BudgetRouter.js"));
+router.use("/appointment", require("./AppointmentRouter.js"));
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const dayjs = require("dayjs");
 const pepper = process.env.PEPPER;
 const mailer = require("../helpers/nodemailer");
 
@@ -23,19 +24,17 @@ let userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, lowercase: true },
   passwordHash: { type: String, required: false },
-  role: { type: String, default: "" },
-  emphasis: String,
-  partners: String,
+  role: { type: String, default: "" }, // Roles: Médico, Administrador, Operador, Cliente
+  emphasis: [String],
+  partners: [String],
   refreshPassToken: String,
-  refreshExpiration: Date,
+  refreshExpiration: String,
   accessToken: String,
-  accessExpiration: Date,
+  accessExpiration: String,
   dateOfBirth: String,
-  cellPhone: String,
+  cellPhone: { type: String, required: true },
   addr: AddressSchema,
   nameOfMother: String,
-  salary: Number,
-  hourlyRate: Number,
   enabled: Boolean,
 });
 
@@ -48,7 +47,7 @@ userSchema.methods.createUser = async function (user) {
     if (userExists) throw "E-mail já cadastrado.";
     user.password = user.password
       ? user.password
-      : crypto.randomBytes(20).toString("hex");
+      : crypto.randomBytes(32).toString("hex");
     user.passwordHash = await bcrypt.hash(user.password + pepper, 8);
     delete user.password;
     let newUser = new mongoose.model("User")(user);
@@ -66,16 +65,24 @@ userSchema.methods.validateLogin = async function (user) {
       .model("User")
       .findOne({ email: user.email });
     if (!userExists) throw "Usuário ou senha inválidos.";
-    if (!user.accessToken) {
+    if (user.password) {
       const validateUser = await bcrypt.compare(
         `${user.password}${pepper}`,
         userExists.passwordHash
       );
       if (!validateUser) throw "Usuário ou senha inválidos.";
     } else {
+      const expiration = userExists.accessExpiration
+        ? dayjs(userExists.accessExpiration)
+        : false;
+      if (!expiration || dayjs().isAfter(dayjs(expiration))) {
+        userExists.accessExpiration = null;
+        userExists.accessToken = null;
+        userExists.save();
+        throw "Senha não fornecida ou não há token de acesso válido";
+      }
       if (!userExists.accessToken || user.accessToken != userExists.accessToken)
         throw "Token de acesso inválido";
-      userExists.accessToken = null;
     }
     return { user: userExists };
   } catch (e) {
@@ -88,7 +95,7 @@ userSchema.methods.createToken = async function (id) {
   try {
     const userExists = await mongoose.model("User").findById(id);
     userExists.refreshPassToken = crypto.randomBytes(20).toString("hex");
-    userExists.refreshExpiration = new Date();
+    userExists.refreshExpiration = dayjs().add(1, "day");
     await userExists.save();
     await mailer(
       userExists.email,
@@ -108,7 +115,7 @@ userSchema.methods.createToken = async function (id) {
 userSchema.methods.createAccessToken = async function (id) {
   try {
     const userExists = await mongoose.model("User").findById(id);
-    userExists.accessExpiration = new Date();
+    userExists.accessExpiration = dayjs().add(1, "day");
     userExists.accessToken = crypto.randomBytes(20).toString("hex");
     await userExists.save();
     await mailer(

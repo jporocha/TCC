@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 
 transporter
   .verify()
-  .then(console.log("Conectado ao servidor de e-mails..."))
+  .then(console.log("Conexão ao servidor de e-mails: Ok"))
   .catch(console.error);
 
 async function main(to, subject, text, html) {

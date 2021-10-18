@@ -4,7 +4,6 @@ if (result.error) console.log("Production mode (No env vars from .env file)");
 const express = require("express");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
 const passport = require("passport");
 
 const server = express();
@@ -16,7 +15,7 @@ const compression = require("compression");
 const helmet = require("helmet");
 
 server.use(cookieParser());
-server.use(bodyParser.json());
+server.use(express.json());
 server.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -36,7 +35,6 @@ server.use(passport.initialize());
 server.use(passport.session());
 server.use(helmet());
 server.use(compression());
-server.use(express.json());
 
 server.use("/api", require("../routes/api.js"));
 

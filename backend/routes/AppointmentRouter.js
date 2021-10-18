@@ -1,6 +1,6 @@
-// /api/users/
+// /api/appointment/
 
-const UserService = require("../services/UserService");
+const AppointmentService = require("../services/AppointmentService");
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");

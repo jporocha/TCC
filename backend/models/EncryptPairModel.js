@@ -4,8 +4,8 @@ const crypto = require("crypto");
 const algorithm = "aes-256-cbc";
 const idPepper = process.env.PEPPER_ID;
 
-if (!pepper) {
-  console.log("Sem PEPPER nas variaveis de ambiente");
+if (!idPepper) {
+  console.log("Sem pepper de criptografia nas variaveis de ambiente");
   process.exit(1);
 }
 
@@ -15,7 +15,7 @@ let encryptionSchema = new mongoose.Schema({
   encryptionIv: String,
 });
 
-encryptionSchema.methods.createPair = async function (patientId) {
+let createPair = async function (patientId) {
   try {
     const hashedId = await bcrypt.hash(patientId + idPepper, 8);
     let pairExists = await mongoose
@@ -31,7 +31,7 @@ encryptionSchema.methods.createPair = async function (patientId) {
     };
     let newPair = new mongoose.model("EncryptPair")(pair);
     await newPair.save();
-    return { msg: "Par de criptografia criado com sucesso." };
+    return newPair;
   } catch (e) {
     return { error: e };
   }
@@ -43,8 +43,10 @@ encryptionSchema.methods.encryptData = async function (patientId, doctorNotes) {
     let pairExists = await mongoose
       .model("EncryptPair")
       .findOne({ encryptedId: hashedId });
-    if (!pairExists)
-      throw "Não existe chave de criptografia para o paciente informado.";
+    if (!pairExists) {
+      pairExists = createPair(patientId);
+      if (pairExists.error) throw "Falha ao criar criptografia";
+    }
     let key = pairExists.encriptionKey;
     let iv = pairExists.encriptionIv;
     let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
@@ -68,11 +70,7 @@ encryptionSchema.methods.decryptData = async function (patientId, doctorNotes) {
     let iv = pairExists.encriptionIv;
     let newIv = Buffer.from(iv, "hex");
     let encryptedText = Buffer.from(doctorNotes, "hex");
-    let decipher = crypto.createDecipheriv(
-      "aes-256-cbc",
-      Buffer.from(key),
-      newIv
-    );
+    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), newIv);
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return { notes: decrypted.toString() };
