@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
-router.post("/createUser", [auth("Administrador")], async (req, res) => {
+router.post("/createUser", async (req, res) => {
   const {
     name,
     email,
@@ -31,8 +31,6 @@ router.post("/createUser", [auth("Administrador")], async (req, res) => {
     cellPhone,
     addr,
     nameOfMother,
-    salary,
-    hourlyRate,
     enabled: true,
   };
 
@@ -63,13 +61,14 @@ router.post("/resetPassword", async (req, res) => {
 router.post("/accessToken", async (req, res) => {
   const { email } = req.body;
 
-  if (!email) return res.status(400).send({ erro: "Dados incompletos" });
+  if (!email) return res.status(400).send({ erro: "Informe o e-mail." });
 
   let response = await UserService.CreateAccessToken(email);
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/", [auth("Administrador")], async (req, res) => {
+router.get("/", async (req, res) => {
+  console.log(req.user);
   let response = await UserService.FetchUsers();
 
   res.status(response.statusCode).send(response.payload);

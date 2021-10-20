@@ -45,11 +45,8 @@ userSchema.methods.createUser = async function (user) {
       .model("User")
       .findOne({ email: user.email });
     if (userExists) throw "E-mail já cadastrado.";
-    user.password = user.password
-      ? user.password
-      : crypto.randomBytes(32).toString("hex");
-    user.passwordHash = await bcrypt.hash(user.password + pepper, 8);
-    delete user.password;
+    let password = crypto.randomBytes(32).toString("hex");
+    user.passwordHash = await bcrypt.hash(password + pepper, 8);
     let newUser = new mongoose.model("User")(user);
     await newUser.save();
     return { user: "Usuário criado com sucesso." };
@@ -65,24 +62,22 @@ userSchema.methods.validateLogin = async function (user) {
       .model("User")
       .findOne({ email: user.email });
     if (!userExists) throw "Usuário ou senha inválidos.";
-    if (user.password) {
-      const validateUser = await bcrypt.compare(
-        `${user.password}${pepper}`,
-        userExists.passwordHash
-      );
-      if (!validateUser) throw "Usuário ou senha inválidos.";
-    } else {
+    if (!user.password) throw "Usuário ou senha inválidos";
+    const validateUser = await bcrypt.compare(
+      `${user.password}${pepper}`,
+      userExists.passwordHash
+    );
+    if (!validateUser) {
       const expiration = userExists.accessExpiration
         ? dayjs(userExists.accessExpiration)
         : false;
-      if (!expiration || dayjs().isAfter(dayjs(expiration))) {
-        userExists.accessExpiration = null;
-        userExists.accessToken = null;
-        userExists.save();
-        throw "Senha não fornecida ou não há token de acesso válido";
-      }
-      if (!userExists.accessToken || user.accessToken != userExists.accessToken)
-        throw "Token de acesso inválido";
+      const validateToken =
+        !dayjs().isAfter(dayjs(expiration)) &&
+        user.password === userExists.accessToken;
+      userExists.accessExpiration = null;
+      userExists.accessToken = null;
+      userExists.save();
+      if (!validateUser && !validateToken) throw "Usuário ou senha inválido";
     }
     return { user: userExists };
   } catch (e) {
@@ -120,7 +115,7 @@ userSchema.methods.createAccessToken = async function (id) {
     await userExists.save();
     await mailer(
       userExists.email,
-      "Seu token para acesso",
+      "Seu token para acesso único",
       userExists.accessToken,
       userExists.accessToken
     );

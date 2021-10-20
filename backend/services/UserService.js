@@ -19,6 +19,20 @@ module.exports = class UserService {
     }
   }
 
+  static async CreateAccessToken(email) {
+    let userExists = await UserModel.find({ email });
+    if (!userExists.length)
+      return {
+        payload: "E-mail não cadastrado",
+        statusCode: 400,
+      };
+    let response = await User.createAccessToken(userExists[0]._id);
+    return {
+      payload: response.msg ? response.msg : response.error,
+      statusCode: response.msg ? 200 : 400,
+    };
+  }
+
   static async RecoverPassword(email) {
     let userExists = await UserModel.find({ email, localStrategy: true });
     if (!userExists.length)
