@@ -20,7 +20,7 @@ transporter
 async function main(to, subject, text, html) {
   try {
     let info = await transporter.sendMail({
-      from: "Neomecânica <neomecanicaengenharia@gmail.com>",
+      from: "CliniMed <clinimedbh@gmail.com>",
       to,
       subject,
       text,

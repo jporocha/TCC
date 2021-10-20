@@ -1,5 +1,17 @@
 <template>
-  <div class="schedule">
-    <h1>Página para gerenciamento de medicamentos</h1>
+  <div>
+    <MedicationsTable />
   </div>
 </template>
+
+<script>
+import MedicationsTable from "@/components/Medications/MedicationTable";
+export default {
+  components: {
+    MedicationsTable,
+  },
+};
+</script>
+
+<style scoped>
+</style>

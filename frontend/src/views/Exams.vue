@@ -1,5 +1,17 @@
 <template>
-  <div class="schedule">
-    <h1>Página para gerenciamento de exames.</h1>
+  <div>
+    <ExamsTable />
   </div>
 </template>
+
+<script>
+import ExamsTable from "@/components/Exams/ExamTable";
+export default {
+  components: {
+    ExamsTable,
+  },
+};
+</script>
+
+<style scoped>
+</style>

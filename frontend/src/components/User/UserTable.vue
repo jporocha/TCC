@@ -161,7 +161,6 @@ export default {
       axios
         .get("/users")
         .then((res) => {
-          console.log(res.data);
           this.users = res.data;
           this.loading = false;
         })
@@ -169,6 +168,7 @@ export default {
           this.$root.vtoast.show({
             color: "orange",
             message: err.response.data,
+            icon: "mdi-alert",
           });
           this.loading = false;
         });

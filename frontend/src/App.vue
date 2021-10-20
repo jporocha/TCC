@@ -29,7 +29,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
+    <v-main class="fillWidth">
       <router-view></router-view>
     </v-main>
     <vtoast ref="vtoast" />
@@ -105,5 +105,9 @@ export default {
     var(--v-app-lighten1),
     var(--v-app-lighten3)
   );
+}
+
+.fillWidth {
+  width: 100%;
 }
 </style>

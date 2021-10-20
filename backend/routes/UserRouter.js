@@ -68,7 +68,6 @@ router.post("/accessToken", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  console.log(req.user);
   let response = await UserService.FetchUsers();
 
   res.status(response.statusCode).send(response.payload);

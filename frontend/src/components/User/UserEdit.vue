@@ -222,6 +222,7 @@ export default {
           this.$root.vtoast.show({
             color: "orange",
             message: err.response.data,
+            icon: "mdi-alert",
           });
         });
     },
