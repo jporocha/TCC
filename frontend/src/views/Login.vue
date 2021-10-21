@@ -4,11 +4,7 @@
     class="d-flex fill-height justify-center align-center cardBG"
     ><v-spacer></v-spacer>
     <transition name="rotate" mode="out-in">
-      <LoginCard
-        v-on:Register="changeToRegister"
-        v-on:ForgotPass="changeToPass"
-        v-if="modo === 1"
-      />
+      <LoginCard v-on:ForgotPass="changeToPass" v-if="modo === 1" />
       <ForgotPass v-on:Login="changeToLogin" v-else-if="modo === 2" />
     </transition>
     <v-spacer></v-spacer>
@@ -39,6 +35,9 @@ export default {
     changeToLogin() {
       this.modo = 1;
     },
+  },
+  mounted() {
+    if (this.$store.getters.getUser) this.$router.push("/");
   },
 };
 </script>

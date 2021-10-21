@@ -36,84 +36,19 @@
         'sort-by-text': 'Organizar por',
       }"
     >
-      <template v-slot:[`item._id`]="{ item }">
-        {{ convertToDate(item._id) }}
-      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-if="item.role === 'admin'"
-              icon
-              @click="demoteUser(item)"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon small color="red">mdi-account-minus</v-icon>
-            </v-btn>
-          </template>
-          <span>Remover acesso</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-if="item.role === 'cliente'"
-              icon
-              @click="editUser(item)"
-              v-bind="attrs"
-              v-on="on"
-            >
+            <v-btn icon @click="editUser(item)" v-bind="attrs" v-on="on">
               <v-icon small color="purple">mdi-account-edit</v-icon>
             </v-btn>
           </template>
-          <span>Editar cliente</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-if="item.role === 'cliente'"
-              icon
-              @click="createJob(item)"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon small color="green">mdi-folder-account</v-icon>
-            </v-btn>
-          </template>
-          <span>Novo projeto</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-if="item.role === 'cliente'"
-              icon
-              @click="promoteUser(item)"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon small color="blue">mdi-account-star</v-icon>
-            </v-btn>
-          </template>
-          <span>Tornar administrador</span>
+          <span>Editar paciente</span>
         </v-tooltip>
       </template>
     </v-data-table>
-    <v-dialog max-width="500" v-model="dialog">
-      <v-card>
-        <v-card-title>{{ cardTitle }}</v-card-title>
-        <v-card-text class="text-justify">{{ cardText }}</v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions
-          ><v-btn small color="red" @click="dialog = false">Cancelar</v-btn
-          ><v-spacer></v-spacer
-          ><v-btn small color="green" @click="execAction"
-            >Confirmar</v-btn
-          ></v-card-actions
-        >
-      </v-card>
-    </v-dialog>
     <v-dialog max-width="500" v-model="userDialog">
-      <EditUser :key="userKey" v-on:close="closeUser" />
+      <EditUser :key="userKey" :user="user" v-on:close="closeUser" />
     </v-dialog>
   </v-card>
 </template>
@@ -136,7 +71,7 @@ export default {
           sortable: false,
         },
         { text: "E-mail", value: "email", sortable: false },
-        { text: "Cadastro", value: "tipo", sortable: false },
+        { text: "Função", value: "role", sortable: false },
         {
           text: "Ações",
           value: "actions",
@@ -152,6 +87,7 @@ export default {
       users: [],
       loading: true,
       busca: "",
+      user: null,
       userDialog: false,
       userKey: Math.random(),
     };

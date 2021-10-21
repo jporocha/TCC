@@ -170,10 +170,10 @@ import axios from "axios";
 import dayjs from "dayjs";
 
 export default {
-  props: ["userId"],
+  props: ["user"],
   computed: {
     CardTitle() {
-      return this.userId ? "Editar cliente" : "Inserir cliente";
+      return this.user ? "Editar cliente" : "Inserir cliente";
     },
     formattedDate() {
       return dayjs(this.client.dateOfBirth).format("DD/MM/YYYY");
@@ -208,8 +208,8 @@ export default {
   },
   methods: {
     saveUser() {
-      let method = this.userId ? "put" : "post";
-      let address = this.userId ? this.userId : "createUser";
+      let method = this.user ? "put" : "post";
+      let address = this.user ? this.user._id : "createUser";
       axios[method](`/users/${address}`, this.client)
         .then((res) => {
           this.$root.vtoast.show({
@@ -229,6 +229,9 @@ export default {
     closeUser() {
       this.$emit("close", false);
     },
+  },
+  mounted() {
+    if (this.user) this.client = Object.assign({}, this.user);
   },
 };
 </script>

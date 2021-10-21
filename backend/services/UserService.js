@@ -34,7 +34,7 @@ module.exports = class UserService {
   }
 
   static async RecoverPassword(email) {
-    let userExists = await UserModel.find({ email, localStrategy: true });
+    let userExists = await UserModel.find({ email });
     if (!userExists.length)
       return {
         payload: "E-mail não cadastrado",
@@ -48,7 +48,7 @@ module.exports = class UserService {
   }
 
   static async ResetPassword(email, token, newPassword) {
-    let userExists = await UserModel.findOne({ email, localStrategy: true });
+    let userExists = await UserModel.findOne({ email });
 
     if (!userExists)
       return {

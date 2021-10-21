@@ -9,7 +9,7 @@
         >
       </v-card-title>
       <v-card-text>
-        <v-list two-line v-if="medicineList.length" :key="medicineList.length">
+        <v-list two-line v-if="medicineList.length">
           <v-list-item
             v-for="(item, index) in medicineList"
             :key="`Medicamento ${index}`"
@@ -30,7 +30,7 @@
         <div v-else>Não há medicamentos prescritos para o paciente.</div>
       </v-card-text>
     </v-card>
-    <v-dialog v-model="pickDialog" max-width="600px">
+    <v-dialog v-model="pickDialog" max-width="600px" :key="dialogKey">
       <v-card color="white">
         <v-card-title>Nova medicação</v-card-title>
         <v-card-text>
@@ -80,6 +80,7 @@ export default {
   data() {
     return {
       pickDialog: false,
+      dialogKey: 1,
       medicineList: [
         {
           medicine: "Synthroid - Abbot (Levotiroxina sódica)",
@@ -129,7 +130,11 @@ export default {
         dosage: this.activeMedication.dosage,
         posologia: this.activeMedication.posologia,
       });
-      console.log(this.medicineList);
+      this.activeMedication = {
+        medicine: "",
+        dosage: "",
+        posologia: "",
+      };
       this.pickDialog = false;
     },
     removeItem(item) {

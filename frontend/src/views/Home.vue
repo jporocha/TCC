@@ -1,15 +1,29 @@
 <template>
-  <landing-page />
+  <div>Página inicial</div>
 </template>
 
 <script>
-import LandingPage from "../components/LandingPage";
-
+import axios from "axios";
 export default {
-  name: "Home",
-
-  components: {
-    LandingPage,
+  methods: {
+    checkLogged() {
+      axios
+        .get("/auth/user")
+        .then((res) => {
+          if (res.data.nome) {
+            this.$store.dispatch("SET_USER", res.data);
+          }
+        })
+        .catch((err) => {
+          this.$store.dispatch("SET_USER", null);
+        });
+    },
+  },
+  mounted() {
+    this.checkLogged();
   },
 };
 </script>
+
+<style scoped>
+</style>

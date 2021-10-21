@@ -1,15 +1,52 @@
 <template>
   <v-app>
     <v-app-bar class="appBar" clipped-left app>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title class="appName">
+      <v-app-bar-nav-icon
+        v-if="user"
+        @click="drawer = !drawer"
+      ></v-app-bar-nav-icon>
+      <v-toolbar-title class="appName" @click="loadRoute('Home')">
         <v-icon>mdi-stethoscope</v-icon>
         CliniMed
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-avatar class="ml-10" color="grey darken-1" size="32"></v-avatar>
+      <v-btn
+        small
+        text
+        color="grey darken-2"
+        v-if="!user"
+        @click="loadRoute('Login')"
+      >
+        Login
+      </v-btn>
+      <div v-else class="d-flex align-center">
+        <div class="body-2 text-right">
+          {{ user.nome }} <br />
+          Acesso: {{ user.role }}
+        </div>
+        <v-menu bottom class="mx-4" rounded offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn icon x-large v-on="on">
+              <v-avatar color="blue darken-4" size="30">
+                <span class="white--text text-h6">{{
+                  user.nome.charAt(0)
+                }}</span>
+              </v-avatar>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-list-item-content class="justify-center">
+              <div class="mx-auto text-center">
+                <v-btn small depressed rounded text @click="logOut">
+                  Desconectar
+                </v-btn>
+              </div>
+            </v-list-item-content>
+          </v-card>
+        </v-menu>
+      </div>
     </v-app-bar>
-    <v-navigation-drawer v-model="drawer" app clipped>
+    <v-navigation-drawer v-if="showDrawer" v-model="drawer" app clipped>
       <v-list dense>
         <v-subheader>SEÇÕES</v-subheader>
         <v-list-item-group v-model="selectedItem" color="primary">
@@ -43,7 +80,16 @@
 
 <script>
 import vtoast from "@/helpers/vtoast";
+import axios from "axios";
 export default {
+  computed: {
+    user() {
+      return this.$store.getters.getUser;
+    },
+    showDrawer() {
+      return this.user && this.drawer;
+    },
+  },
   data() {
     return {
       drawer: null,
@@ -55,7 +101,6 @@ export default {
         { text: "Usuários", icon: "mdi-account-edit", link: "Admin" },
         { text: "Medicamentos", icon: "mdi-pill", link: "Medications" },
         { text: "Exames", icon: "mdi-inbox-multiple", link: "Exams" },
-        { text: "Login", icon: "mdi-account-check", link: "Login" },
         { text: "Sobre", icon: "mdi-help", link: "About" },
       ],
       links: [],
@@ -66,10 +111,34 @@ export default {
   },
   mounted() {
     this.$root.vtoast = this.$refs.vtoast;
+    this.checkLogged();
   },
   methods: {
     loadRoute(link) {
       this.$router.push({ name: link });
+    },
+    checkLogged() {
+      axios
+        .get("/auth/user")
+        .then((res) => {
+          if (res.data.nome) {
+            this.$store.dispatch("SET_USER", res.data);
+          }
+        })
+        .catch((err) => {
+          this.$store.dispatch("SET_USER", null);
+        });
+    },
+    logOut() {
+      axios
+        .get("/auth/logout")
+        .then(() => {
+          this.$store.dispatch("SET_USER", null);
+          this.$router.push("/");
+        })
+        .catch((err) => {
+          console.log("Falha no Avatar:", err);
+        });
     },
   },
 };

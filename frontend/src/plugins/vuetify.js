@@ -8,6 +8,9 @@ export default new Vuetify({
     themes: {
       light: {
         app: "#03fcb6",
+        app2: "#fc0349",
+        app3: "#C5FC03",
+        app4: "#3A03FC",
       },
     },
     options: {

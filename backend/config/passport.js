@@ -4,7 +4,7 @@ const UserModel = require("../models/UserModel");
 const User = new UserModel();
 
 passport.serializeUser(function (user, done) {
-  done(null, { id: user._id, nome: user.name, acesso: user.role });
+  done(null, { id: user._id, nome: user.name, role: user.role });
 });
 
 passport.deserializeUser(function (user, done) {

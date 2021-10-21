@@ -71,8 +71,7 @@ export default {
         .post("/auth/login", payload)
         .then((res) => {
           this.$root.vtoast.show({ message: "Login realizado com sucesso." });
-          let rota = res.data === "admin" ? "Dashboard" : "Cliente";
-          this.$router.push(rota);
+          this.$router.push("/");
         })
         .catch(() => {
           this.$root.vtoast.show({
