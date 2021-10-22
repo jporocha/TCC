@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-4257e469"],{2887:function(e,t,n){"use strict";n.r(t);var a=function(){var e=this,t=e.$createElement,n=e._self._c||t;return n("div",[n("p",[e._v("Rota para controle dos pacientes")]),n("div",{staticClass:"d-flex justify-center"},[n("EditUser")],1)])},s=[],c=n("8329"),i={components:{EditUser:c["a"]}},r=i,o=n("2877"),u=Object(o["a"])(r,a,s,!1,null,"3a3196e4",null);t["default"]=u.exports},afdd:function(e,t,n){"use strict";var a=n("8336");t["a"]=a["a"]}}]);
-//# sourceMappingURL=chunk-4257e469.c620367a.js.map
