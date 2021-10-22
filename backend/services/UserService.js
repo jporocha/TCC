@@ -83,7 +83,7 @@ module.exports = class UserService {
   }
 
   static async FetchUsers(onlyDoctors) {
-    let query = onlyDoctors ? { role: "Médico" } : "";
+    let query = onlyDoctors ? { role: "Médico" } : {};
     let users = await UserModel.find(query);
     if (users.length)
       return {

@@ -161,28 +161,24 @@ export default {
 }
 
 .cardBG {
-  background: var(--v-app-base);
+  background: var(--v-app-darken2);
   background: -webkit-linear-gradient(
-    60deg,
+    22deg,
     var(--v-app-base),
-    var(--v-app-darken3),
+    var(--v-app-darken2),
     var(--v-app-darken4)
   );
   background: linear-gradient(
-    60deg,
-    var(--v-app4-base),
-    var(--v-app4-darken2),
-    var(--v-app4-lighten2)
+    22deg,
+    var(--v-app-base),
+    var(--v-app-darken2),
+    var(--v-app-darken4)
   );
 }
 
 .appBar {
   background: var(--v-app-lighten1);
-  background: linear-gradient(
-    90deg,
-    var(--v-app-lighten1),
-    var(--v-app-lighten3)
-  );
+  background: linear-gradient(90deg, var(--v-app-base), var(--v-app-lighten3));
 }
 
 .fillWidth {

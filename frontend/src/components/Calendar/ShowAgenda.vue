@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-sheet height="64">
+    <v-sheet height="60">
       <v-toolbar flat>
         <v-btn fab text small color="grey darken-2" @click="prev">
           <v-icon small> mdi-chevron-left </v-icon>
@@ -13,15 +13,24 @@
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn
-          outlined
+          fab
+          text
+          small
           class="mr-4"
           color="grey darken-4"
-          @click="showDialog = true"
+          @click="showInsert"
         >
-          Inserir consulta
+          <v-icon small> mdi-plus </v-icon>
         </v-btn>
-        <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
-          Hoje
+        <v-btn
+          fab
+          text
+          small
+          class="mr-4"
+          color="grey darken-2"
+          @click="setToday"
+        >
+          <v-icon small>mdi-home</v-icon>
         </v-btn>
         <v-menu bottom right>
           <template v-slot:activator="{ on, attrs }">
@@ -45,6 +54,7 @@
       </v-toolbar>
     </v-sheet>
     <v-calendar
+      class="mb-4"
       ref="calendar"
       v-model="focus"
       color="primary"
@@ -52,30 +62,32 @@
       :event-color="getEventColor"
       :type="type"
       interval-minutes="30"
-      interval-height="30"
+      interval-height="40"
       interval-count="20"
       first-time="08:00"
       locale="pt-br"
-      weekdays="1,2,3,4,5,6,0"
-      @click:event="showEvent"
+      weekdays="1,2,3,4,5"
       @click:more="viewDay"
       @click:date="viewDay"
-      @change="updateRange"
     ></v-calendar>
     <v-dialog v-model="showDialog" max-width="600px">
-      <NewAppointment />
+      <NewAppointment :key="appointmentKey" v-on:close="closeDialog" />
     </v-dialog>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import dayjs from "dayjs";
 import NewAppointment from "./Appointment.vue";
+
 export default {
   components: {
     NewAppointment,
   },
   data: () => ({
     showDialog: false,
+    appointmentKey: 10000,
     focus: "",
     type: "week",
     typeToLabel: {
@@ -89,8 +101,8 @@ export default {
     events: [],
     colors: [
       "blue",
-      "indigo",
       "deep-purple",
+      "indigo",
       "cyan",
       "green",
       "orange",
@@ -109,8 +121,41 @@ export default {
   }),
   mounted() {
     this.$refs.calendar.checkChange();
+    this.fetchAppointments();
   },
   methods: {
+    closeDialog(update) {
+      this.showDialog = false;
+      if (update) this.fetchAppointments();
+    },
+    fetchAppointments() {
+      axios
+        .get("/appointment/")
+        .then((res) => {
+          let dados = res.data;
+          let events = [];
+          dados.forEach((ev) => {
+            let duration = ev.tipo === "Consulta" ? 30 : 15;
+            events.push({
+              name: `${ev.patientId.name}`,
+              start: dayjs(ev.date).format("YYYY-MM-DDTHH:mm:ss"),
+              end: dayjs(ev.date)
+                .add(duration, "minutes")
+                .format("YYYY-MM-DDTHH:mm:ss"),
+              color: this.colors[this.rnd(0, this.colors.length - 1)],
+              timed: true,
+            });
+          });
+          this.events = events;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    showInsert() {
+      this.appointmentKey = Math.random();
+      this.showDialog = true;
+    },
     viewDay({ date }) {
       this.focus = date;
       this.type = "day";
@@ -126,50 +171,6 @@ export default {
     },
     next() {
       this.$refs.calendar.next();
-    },
-    showEvent({ nativeEvent, event }) {
-      const open = () => {
-        this.selectedEvent = event;
-        this.selectedElement = nativeEvent.target;
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => (this.selectedOpen = true))
-        );
-      };
-
-      if (this.selectedOpen) {
-        this.selectedOpen = false;
-        requestAnimationFrame(() => requestAnimationFrame(() => open()));
-      } else {
-        open();
-      }
-
-      nativeEvent.stopPropagation();
-    },
-    updateRange({ start, end }) {
-      const events = [];
-
-      const min = new Date(`${start.date}T00:00:00`);
-      const max = new Date(`${end.date}T23:59:59`);
-      const days = (max.getTime() - min.getTime()) / 86400000;
-      const eventCount = this.rnd(days, days + 20);
-
-      for (let i = 0; i < eventCount; i++) {
-        const allDay = this.rnd(0, 3) === 0;
-        const firstTimestamp = this.rnd(min.getTime(), max.getTime());
-        const first = new Date(firstTimestamp - (firstTimestamp % 900000));
-        const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000;
-        const second = new Date(first.getTime() + secondTimestamp);
-
-        events.push({
-          name: this.names[this.rnd(0, this.names.length - 1)],
-          start: first,
-          end: second,
-          color: this.colors[this.rnd(0, this.colors.length - 1)],
-          timed: !allDay,
-        });
-      }
-
-      this.events = events;
     },
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a;

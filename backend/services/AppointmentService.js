@@ -5,15 +5,16 @@ module.exports = class UserService {
   constructor() {}
 
   static async CreateAppointment(slot) {
-    let response = await AppointmentModel.createUser(user);
-    if (!response.error) {
+    try {
+      let newAppointment = new AppointmentModel(slot);
+      await newAppointment.save();
       return {
         payload: "Horário criado com sucesso.",
         statusCode: 201,
       };
-    } else {
+    } catch (e) {
       return {
-        payload: response.error,
+        payload: "Falha ao criar consulta",
         statusCode: 400,
       };
     }
@@ -30,6 +31,43 @@ module.exports = class UserService {
       payload: "Alterações realizadas com sucesso",
       statusCode: response.msg ? 200 : 400,
     };
+  }
+
+  static async FetchPatientAppointments(patientId) {
+    try {
+      let appointments = await AppointmentModel.find({
+        patientId,
+      })
+        .sort({ date: 1 })
+        .populate("doctorId");
+      return {
+        payload: appointments.filter((el) => !el.cancel),
+        statusCode: 200,
+      };
+    } catch (e) {
+      return {
+        payload: e,
+        statusCode: 400,
+      };
+    }
+  }
+
+  static async FetchAppointments() {
+    try {
+      let appointments = await AppointmentModel.find()
+        .sort({ date: 1 })
+        .populate("doctorId")
+        .populate("patientId");
+      return {
+        payload: appointments.filter((el) => !el.cancel),
+        statusCode: 200,
+      };
+    } catch (e) {
+      return {
+        payload: e,
+        statusCode: 400,
+      };
+    }
   }
 
   static async InsertNotes(slotId, anamnese) {

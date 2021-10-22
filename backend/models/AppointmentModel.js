@@ -8,16 +8,18 @@ let appointmentSchema = new mongoose.Schema({
   },
   patientId: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Patient",
   },
   doctorId: {
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  available: {
+  tipo: String,
+  cancel: {
     type: Boolean,
-    default: true,
+    default: false,
   },
+  receptionNotes: String,
   encryptedNotes: String,
   prescription: [
     {
