@@ -118,7 +118,7 @@ export default {
     },
     closeEmployee(reload) {
       if (reload) this.fetchEmployees();
-      this.patientDialog = false;
+      this.employeeDialog = false;
     },
     editEmployee(employee) {
       this.employee = employee;

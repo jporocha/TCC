@@ -82,6 +82,7 @@
                   </template>
                   <v-date-picker
                     v-model="appointmentDate"
+                    :allowed-dates="allowed"
                     locale="pt-br"
                     :min="today"
                     @input="menuDate = false"
@@ -130,6 +131,20 @@ export default {
     boxName() {
       return this.idConsulta ? "Alterar dados da consulta" : "Nova consulta";
     },
+    filterDates() {
+      let values = [];
+      let allowedDates = this.doctors.find(
+        (el) => el._id === this.doctor
+      ).disponibilidade;
+      let today = dayjs();
+      let finish = today.add(2, "months");
+      while (today < finish) {
+        if (allowedDates.includes(today.day()))
+          values.push(today.format("YYYY-MM-DD"));
+        today = today.add(1, "day");
+      }
+      return values;
+    },
     formattedDate() {
       return dayjs(this.appointmentDate).format("DD/MM/YYYY");
     },
@@ -167,6 +182,9 @@ export default {
     };
   },
   methods: {
+    allowed(data) {
+      return this.filterDates.includes(dayjs(data).format("YYYY-MM-DD"));
+    },
     saveData() {
       let method = this.idConsulta ? "put" : "post";
       let address = this.idConsulta
@@ -217,6 +235,7 @@ export default {
         .get("/users/doctors")
         .then((res) => {
           this.doctors = res.data;
+          console.log(this.doctors);
         })
         .catch((err) => {
           this.$root.vtoast.show({

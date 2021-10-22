@@ -24,7 +24,8 @@ let userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, lowercase: true },
   passwordHash: { type: String, required: false },
-  role: { type: String, default: "" }, // Roles: Médico, Administrador, Operador, Cliente
+  role: { type: String, default: "" }, // Roles: Médico, Recepção, Administrador
+  disponibilidade: [Number],
   emphasis: [String],
   partners: [String],
   refreshPassToken: String,

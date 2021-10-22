@@ -88,6 +88,18 @@
             v-model="client.partners"
             :items="partners"
           ></v-select>
+          <v-select
+            prepend-icon="mdi-calendar"
+            v-if="client.role === 'Médico'"
+            outlined
+            dense
+            item-text="dia"
+            item-value="value"
+            multiple
+            label="Dias de trabalho"
+            v-model="client.disponibilidade"
+            :items="dias"
+          ></v-select>
           <v-divider class="mb-6"></v-divider>
           <v-row>
             <v-col class="mb-n4 pb-0 col-12"
@@ -183,6 +195,7 @@ export default {
         partners: "",
         dateOfBirth: dayjs().subtract(14, "years").format("YYYY-MM-DD"),
         cellPhone: "",
+        disponibilidade: [],
         addr: {
           rua: "",
           numero: "",
@@ -196,6 +209,28 @@ export default {
       roles: ["Recepção", "Médico", "Administrador"],
       emphasis: ["Cardiologista", "Ortopedista", "Pediatra", "Psiquiatra"],
       partners: ["Unimed-BH", "Qualicorp", "Vitallis"],
+      dias: [
+        {
+          dia: "Segunda-feira",
+          value: 1,
+        },
+        {
+          dia: "Terça-feira",
+          value: 2,
+        },
+        {
+          dia: "Quarta-feira",
+          value: 3,
+        },
+        {
+          dia: "Quinta-feira",
+          value: 4,
+        },
+        {
+          dia: "Sexta-feira",
+          value: 5,
+        },
+      ],
       menuNascimento: false,
       today: dayjs().subtract(14, "years").format("YYYY-MM-DD"),
     };
