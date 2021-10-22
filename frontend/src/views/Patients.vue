@@ -1,17 +1,16 @@
 <template>
   <div>
-    <p>Rota para controle dos pacientes</p>
     <div class="d-flex justify-center">
-      <EditUser />
+      <PatientTable />
     </div>
   </div>
 </template>
 
 <script>
-import EditUser from "@/components/User/UserEdit";
+import PatientTable from "@/components/Patient/PatientTable";
 export default {
   components: {
-    EditUser,
+    PatientTable,
   },
 };
 </script>

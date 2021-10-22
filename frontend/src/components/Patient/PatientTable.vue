@@ -12,34 +12,37 @@
         hide-details
       ></v-text-field>
       <v-spacer></v-spacer>
-      <v-btn class="my-2" small color="app" @click="createUser"
-        >Inserir cliente</v-btn
+      <v-btn class="my-2" small color="app" @click="createPatient"
+        >Inserir paciente</v-btn
       >
     </v-card-title>
     <v-data-table
-      :headers="usersHeader"
-      :items="users"
+      :headers="patientHeader"
+      :items="patients"
       :search="busca"
       dense
       item-key="_id"
       class="elevation-1"
       :loading="loading"
-      loading-text="Carregando usuários..."
-      no-data-text="Não há usuários a exibir..."
+      loading-text="Carregando pacientes..."
+      no-data-text="Não há pacientes a exibir..."
       :items-per-page="10"
       :footer-props="{
         'items-per-page-all-text': 'Todos',
-        'items-per-page-text': 'Usuários por página:',
+        'items-per-page-text': 'Pacientes por página:',
         'items-per-page-options': [5, 10, 15, -1],
       }"
       :header-props="{
         'sort-by-text': 'Organizar por',
       }"
     >
+      <template v-slot:[`item.dateOfBirth`]="{ item }">
+        {{ formatDate(item.dateOfBirth) }}
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn icon @click="editUser(item)" v-bind="attrs" v-on="on">
+            <v-btn icon @click="editPatient(item)" v-bind="attrs" v-on="on">
               <v-icon small color="purple">mdi-account-edit</v-icon>
             </v-btn>
           </template>
@@ -47,31 +50,40 @@
         </v-tooltip>
       </template>
     </v-data-table>
-    <v-dialog max-width="500" v-model="userDialog">
-      <EditUser :key="userKey" :user="user" v-on:close="closeUser" />
+    <v-dialog max-width="500" v-model="patientDialog">
+      <EditPatient
+        :key="patientKey"
+        :patient="patient"
+        v-on:close="closePatient"
+      />
     </v-dialog>
   </v-card>
 </template>
 
 <script>
 import axios from "axios";
-import EditUser from "./UserEdit.vue";
+import dayjs from "dayjs";
+import EditPatient from "./EditPatient.vue";
 
 export default {
   props: ["admin"],
   components: {
-    EditUser,
+    EditPatient,
   },
   computed: {
-    usersHeader() {
+    patientHeader() {
       let headers = [
         {
           text: "Nome",
           value: "name",
           sortable: false,
         },
-        { text: "E-mail", value: "email", sortable: false },
-        { text: "Função", value: "role", sortable: false },
+        { text: "Data de nascimento", value: "dateOfBirth", sortable: false },
+        {
+          text: "CPF / Nome dos pais",
+          value: "identificador",
+          sortable: false,
+        },
         {
           text: "Ações",
           value: "actions",
@@ -84,21 +96,32 @@ export default {
   },
   data() {
     return {
-      users: [],
+      patients: [],
       loading: true,
       busca: "",
-      user: null,
-      userDialog: false,
-      userKey: Math.random(),
+      patient: null,
+      patientDialog: false,
+      patientKey: Math.random(),
     };
   },
   methods: {
-    fetchUsers() {
+    formatDate(date) {
+      return dayjs(date).format("DD/MM/YYYY");
+    },
+    fetchPatients() {
       axios
-        .get("/users")
+        .get("/patients")
         .then((res) => {
-          this.users = res.data;
+          this.patients = res.data.map((el) => {
+            let newEl = Object.assign({}, el);
+            newEl.identificador = el.cpf ? el.cpf : el.nameOfParents;
+            return newEl;
+          });
           this.loading = false;
+          this.$root.vtoast.show({
+            color: "green",
+            message: "Pacientes carregados",
+          });
         })
         .catch((err) => {
           this.$root.vtoast.show({
@@ -109,23 +132,23 @@ export default {
           this.loading = false;
         });
     },
-    closeUser(reload) {
-      if (reload) this.fetchUsers();
-      this.userDialog = false;
+    closePatient(reload) {
+      if (reload) this.fetchPatients();
+      this.patientDialog = false;
     },
-    editUser(user) {
-      this.user = user;
-      this.userKey = user._id;
-      this.userDialog = true;
+    editPatient(patient) {
+      this.patient = patient;
+      this.patientKey = patient._id;
+      this.patientDialog = true;
     },
-    createUser() {
-      this.user = null;
-      this.userKey = Math.random();
-      this.userDialog = true;
+    createPatient() {
+      this.patient = null;
+      this.patientKey = Math.random();
+      this.patientDialog = true;
     },
   },
   mounted() {
-    this.fetchUsers();
+    this.fetchPatients();
   },
 };
 </script>

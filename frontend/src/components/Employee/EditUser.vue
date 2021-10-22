@@ -13,13 +13,6 @@
             label="Nome"
           ></v-text-field>
           <v-text-field
-            prepend-icon="mdi-account-check"
-            v-model="client.nameOfMother"
-            outlined
-            dense
-            label="Nome da mãe"
-          ></v-text-field>
-          <v-text-field
             prepend-icon="mdi-email"
             v-model="client.email"
             outlined
@@ -60,6 +53,7 @@
                 <v-date-picker
                   v-model="client.dateOfBirth"
                   locale="pt-br"
+                  :max="today"
                   @input="menuNascimento = false"
                 ></v-date-picker>
               </v-menu>
@@ -170,10 +164,10 @@ import axios from "axios";
 import dayjs from "dayjs";
 
 export default {
-  props: ["user"],
+  props: ["employee"],
   computed: {
     CardTitle() {
-      return this.user ? "Editar cliente" : "Inserir cliente";
+      return this.employee ? "Editar funcionário" : "Inserir funcionário";
     },
     formattedDate() {
       return dayjs(this.client.dateOfBirth).format("DD/MM/YYYY");
@@ -187,9 +181,8 @@ export default {
         role: "",
         emphasis: "",
         partners: "",
-        dateOfBirth: dayjs().format("YYYY-MM-DD"),
+        dateOfBirth: dayjs().subtract(14, "years").format("YYYY-MM-DD"),
         cellPhone: "",
-        nameOfMother: "",
         addr: {
           rua: "",
           numero: "",
@@ -204,12 +197,13 @@ export default {
       emphasis: ["Cardiologista", "Ortopedista", "Pediatra", "Psiquiatra"],
       partners: ["Unimed-BH", "Qualicorp", "Vitallis"],
       menuNascimento: false,
+      today: dayjs().subtract(14, "years").format("YYYY-MM-DD"),
     };
   },
   methods: {
     saveUser() {
-      let method = this.user ? "put" : "post";
-      let address = this.user ? this.user._id : "createUser";
+      let method = this.employee ? "put" : "post";
+      let address = this.employee ? this.employee._id : "createUser";
       axios[method](`/users/${address}`, this.client)
         .then((res) => {
           this.$root.vtoast.show({
@@ -231,7 +225,7 @@ export default {
     },
   },
   mounted() {
-    if (this.user) this.client = Object.assign({}, this.user);
+    if (this.employee) this.client = Object.assign({}, this.employee);
   },
 };
 </script>

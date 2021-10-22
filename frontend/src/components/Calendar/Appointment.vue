@@ -144,9 +144,19 @@ export default {
     closeEdit() {
       this.$emit("close", false);
     },
+    loadDoctors() {
+      axios
+        .get("/users/doctors")
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log("Erro:", err);
+        });
+    },
     loadPatients() {
       axios
-        .get("/users")
+        .get("/patients")
         .then((res) => {
           console.log(res.data);
         })
@@ -156,6 +166,7 @@ export default {
     },
   },
   mounted() {
+    this.loadDoctors();
     this.loadPatients();
   },
 };

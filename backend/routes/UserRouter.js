@@ -15,7 +15,6 @@ router.post("/createUser", async (req, res) => {
     dateOfBirth,
     cellPhone,
     addr,
-    nameOfMother,
   } = req.body;
 
   if (!name || !email || !role || !cellPhone)
@@ -30,7 +29,6 @@ router.post("/createUser", async (req, res) => {
     dateOfBirth,
     cellPhone,
     addr,
-    nameOfMother,
     enabled: true,
   };
 
@@ -69,6 +67,11 @@ router.post("/accessToken", async (req, res) => {
 
 router.get("/", async (req, res) => {
   let response = await UserService.FetchUsers();
+  res.status(response.statusCode).send(response.payload);
+});
+
+router.get("/doctors", async (req, res) => {
+  let response = await UserService.FetchUsers(true);
   res.status(response.statusCode).send(response.payload);
 });
 

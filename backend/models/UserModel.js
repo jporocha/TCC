@@ -34,7 +34,6 @@ let userSchema = new mongoose.Schema({
   dateOfBirth: String,
   cellPhone: { type: String, required: true },
   addr: AddressSchema,
-  nameOfMother: String,
   enabled: Boolean,
 });
 

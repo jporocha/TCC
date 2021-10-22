@@ -1,15 +1,14 @@
 <template>
-  <div class="schedule">
-    <h1>Página para gerenciamento dos usuários</h1>
-    <UserTable />
+  <div>
+    <EmployeeTable />
   </div>
 </template>
 
 <script>
-import UserTable from "@/components/User/UserTable";
+import EmployeeTable from "@/components/Employee/UserTable";
 export default {
   components: {
-    UserTable,
+    EmployeeTable,
   },
 };
 </script>

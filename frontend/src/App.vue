@@ -5,7 +5,7 @@
         v-if="user"
         @click="drawer = !drawer"
       ></v-app-bar-nav-icon>
-      <v-toolbar-title class="appName" @click="loadRoute('Home')">
+      <v-toolbar-title class="appName" @click="goToHome">
         <v-icon>mdi-stethoscope</v-icon>
         CliniMed
       </v-toolbar-title>
@@ -20,11 +20,11 @@
         Login
       </v-btn>
       <div v-else class="d-flex align-center">
-        <div class="body-2 text-right">
+        <div class="body-2 text-right d-none d-sm-flex">
           {{ user.nome }} <br />
           Acesso: {{ user.role }}
         </div>
-        <v-menu bottom class="mx-4" rounded offset-y>
+        <v-menu bottom rounded offset-y min-width="220px">
           <template v-slot:activator="{ on }">
             <v-btn icon x-large v-on="on">
               <v-avatar color="blue darken-4" size="30">
@@ -37,6 +37,11 @@
           <v-card>
             <v-list-item-content class="justify-center">
               <div class="mx-auto text-center">
+                <div class="d-md-none body-2 mx-2">
+                  {{ user.nome }} <br />
+                  {{ user.role }}
+                  <v-divider class="my-2"></v-divider>
+                </div>
                 <v-btn small depressed rounded text @click="logOut">
                   Desconectar
                 </v-btn>
@@ -140,6 +145,10 @@ export default {
           console.log("Falha no Avatar:", err);
         });
     },
+    goToHome() {
+      this.selectedItem = -1;
+      this.$router.push("/");
+    },
   },
 };
 </script>
@@ -154,16 +163,16 @@ export default {
 .cardBG {
   background: var(--v-app-base);
   background: -webkit-linear-gradient(
-    22deg,
+    60deg,
     var(--v-app-base),
-    var(--v-app-darken2),
+    var(--v-app-darken3),
     var(--v-app-darken4)
   );
   background: linear-gradient(
-    22deg,
-    var(--v-app-base),
-    var(--v-app-darken2),
-    var(--v-app-darken4)
+    60deg,
+    var(--v-app4-base),
+    var(--v-app4-darken2),
+    var(--v-app4-lighten2)
   );
 }
 
