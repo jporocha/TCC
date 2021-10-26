@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <v-card-title
-        >Solicitação de exames
+        >Exames
         <v-spacer></v-spacer>
         <v-btn text color="blue" @click="pickDialog = true">Novo exame</v-btn>
       </v-card-title>
@@ -72,10 +72,6 @@ export default {
         .get("/exams")
         .then((res) => {
           this.exams = res.data;
-          this.$root.vtoast.show({
-            color: "green",
-            message: "Exames carregados com sucesso",
-          });
         })
         .catch((err) => {
           this.$root.vtoast.show({

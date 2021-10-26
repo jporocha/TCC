@@ -11,11 +11,6 @@ const routes = [
     component: Home,
   },
   {
-    path: "/sobre",
-    name: "About",
-    component: () => import("../views/About.vue"),
-  },
-  {
     path: "/admin",
     name: "Admin",
     component: () => import("../views/Admin.vue"),
@@ -50,6 +45,11 @@ const routes = [
     name: "Patients",
     component: () => import("../views/Patients.vue"),
   },
+  {
+    path: "*",
+    name: "PageNotFound",
+    component: () => import("../views/NotFound.vue"),
+  },
 ];
 
 const router = new VueRouter({
@@ -57,5 +57,10 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 });
+
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch((err) => err);
+};
 
 export default router;

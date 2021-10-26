@@ -23,7 +23,9 @@ export default {
   methods: {
     show(data) {
       this.showSnackbar = true;
-      this.message = data.message || "Erro desconhecido";
+      this.message =
+        (data.message.erro ? data.message.erro : data.message) ||
+        "Erro desconhecido";
       this.color = data.color || "success";
       this.timer = data.timer || 3000;
       this.icon = data.icon || "mdi-check";

@@ -81,13 +81,7 @@ export default {
     return {
       pickDialog: false,
       dialogKey: 1,
-      medicineList: [
-        {
-          medicine: "Synthroid - Abbot (Levotiroxina sódica)",
-          dosage: "200 mcg",
-          posologia: "Tomar 1 comprimido por dia em jejum ao acordar",
-        },
-      ],
+      medicineList: [],
       medications: [],
       activeMedication: {
         medicine: "",
@@ -106,10 +100,6 @@ export default {
               id: el._id,
               text: `${el.brandLabel} - ${el.labName} (${el.activePrinciple})`,
             };
-          });
-          this.$root.vtoast.show({
-            color: "green",
-            message: "Medicamentos carregados com sucesso",
           });
         })
         .catch((err) => {

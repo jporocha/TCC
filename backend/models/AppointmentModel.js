@@ -19,7 +19,6 @@ let appointmentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  receptionNotes: String,
   encryptedNotes: String,
   prescription: [
     {
@@ -33,9 +32,6 @@ let appointmentSchema = new mongoose.Schema({
       ref: "ExamRequest",
     },
   ],
-  patientCheckin: Date,
-  appointmentStart: Date,
-  appointmentEnd: Date,
 });
 
 const model = mongoose.model("Appointment", appointmentSchema);

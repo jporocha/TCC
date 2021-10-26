@@ -5,13 +5,18 @@
         <AppointmentController />
       </v-col>
       <v-col cols="12">
-        <Anamnese v-on:notesChanged="updateNotes" />
+        <Anamnese />
       </v-col>
       <v-col cols="12" lg="6">
         <SelectMedications />
       </v-col>
       <v-col cols="12" lg="6">
         <SelectExams />
+      </v-col>
+      <v-col cols="12" class="text-right mb-2 pr-6">
+        <v-btn @click="saveAppointment" color="blue"
+          >Encerrar atendimento</v-btn
+        >
       </v-col>
     </v-row>
   </div>
@@ -30,15 +35,26 @@ export default {
     SelectMedications,
     SelectExams,
   },
-  data() {
-    return {
-      doctorNotes: {},
-    };
+  computed: {
+    patient() {
+      return this.$store.getters.getPatient;
+    },
   },
   methods: {
-    updateNotes(payload) {
-      this.doctorNotes = payload;
+    saveAppointment() {
+      this.$store.dispatch("SAVE_APPOINTMENT");
+      this.$router.push("/agenda");
     },
+  },
+  beforeMount() {
+    if (!this.patient) this.$router.push("/agenda");
+  },
+  beforeRouteLeave(to, from, next) {
+    localStorage.setItem(
+      "appointment",
+      JSON.stringify(this.$store.getters.getAppointment)
+    );
+    next();
   },
 };
 </script>

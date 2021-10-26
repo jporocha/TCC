@@ -20,17 +20,20 @@ module.exports = class UserService {
     }
   }
 
-  static async EditAppointment(slot, changes) {
-    let userExists = await AppointmentModel.findByIdAndUpdate(slot, changes);
-    if (!userExists.length)
+  static async EditAppointment(id, changes) {
+    try {
+      let userExists = await AppointmentModel.findByIdAndUpdate(id, changes);
+      if (!userExists._id) throw "Falha no update";
+      return {
+        payload: "Alterações realizadas com sucesso",
+        statusCode: 200,
+      };
+    } catch (e) {
       return {
         payload: "Horário não encontrado",
         statusCode: 400,
       };
-    return {
-      payload: "Alterações realizadas com sucesso",
-      statusCode: response.msg ? 200 : 400,
-    };
+    }
   }
 
   static async FetchPatientAppointments(patientId) {
@@ -52,9 +55,10 @@ module.exports = class UserService {
     }
   }
 
-  static async FetchAppointments() {
+  static async FetchAppointments(payload) {
     try {
-      let appointments = await AppointmentModel.find()
+      let query = payload ? payload : {};
+      let appointments = await AppointmentModel.find(query)
         .sort({ date: 1 })
         .populate("doctorId")
         .populate("patientId");

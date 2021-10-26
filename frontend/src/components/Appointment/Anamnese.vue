@@ -16,7 +16,7 @@
           <v-textarea
             outlined
             dense
-            label="Histórico da moléstia"
+            label="Histórico da doença atual"
             v-model="doctorNotes.historicoMolestia"
             placeholder="Histórico de progressão da moléstia, quando possível."
             @change="emitChanges"
@@ -24,15 +24,23 @@
           <v-textarea
             outlined
             dense
+            label="História pregressa e familiar"
+            v-model="doctorNotes.historicoFamiliar"
+            placeholder="Histórico próprio e familiar do paciente"
+            @change="emitChanges"
+          ></v-textarea>
+          <v-textarea
+            outlined
+            dense
             label="Exame físico"
-            v-model="doctorNotes.historicoMolestia"
+            v-model="doctorNotes.exameFisico"
             placeholder="Detalhamento do exame físico do paciente"
             @change="emitChanges"
           ></v-textarea>
           <v-textarea
             outlined
             dense
-            label="Exames apresentados"
+            label="Exames pregressos"
             v-model="doctorNotes.examesApresentados"
             placeholder="Dados sobre exames apresentados durante a consulta"
             @change="emitChanges"
@@ -67,6 +75,7 @@ export default {
       doctorNotes: {
         queixaPrincipal: "",
         historicoMolestia: "",
+        historicoFamiliar: "",
         exameFisico: "",
         examesApresentados: "",
         hipoteseDiagnostica: "",
@@ -76,8 +85,15 @@ export default {
   },
   methods: {
     emitChanges() {
-      this.$emit("notesChanged", this.doctorNotes);
+      let payload = {
+        field: "doctorNotes",
+        payload: this.doctorNotes,
+      };
+      this.$store.dispatch("SAVE_CHANGES", payload);
     },
+  },
+  mounted() {
+    this.doctorNotes = this.$store.getters.getAppointment.doctorNotes;
   },
 };
 </script>

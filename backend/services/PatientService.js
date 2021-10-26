@@ -20,7 +20,7 @@ module.exports = class PatientService {
   }
 
   static async FetchPatients() {
-    let patients = await PatientModel.find();
+    let patients = await PatientModel.find().sort({ name: 1 });
     if (patients.length >= 0)
       return {
         payload: patients,

@@ -53,9 +53,12 @@
     </v-app-bar>
     <v-navigation-drawer v-if="showDrawer" v-model="drawer" app clipped>
       <v-list dense>
-        <v-subheader>SEÇÕES</v-subheader>
         <v-list-item-group v-model="selectedItem" color="primary">
           <v-list-item
+            v-show="
+              item.acesso.includes(user.role) &&
+              (emAndamento || !item.consultaAtiva)
+            "
             v-for="(item, i) in items"
             :key="i"
             @click="loadRoute(item.link)"
@@ -70,7 +73,6 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-
     <v-main class="fillWidth">
       <router-view></router-view>
     </v-main>
@@ -94,19 +96,57 @@ export default {
     showDrawer() {
       return this.user && this.drawer;
     },
+    emAndamento() {
+      return this.$store.getters.getPatient;
+    },
   },
   data() {
     return {
       drawer: null,
       selectedItem: 1,
       items: [
-        { text: "Agenda", icon: "mdi-calendar", link: "Schedule" },
-        { text: "Pacientes", icon: "mdi-account", link: "Patients" },
-        { text: "Consulta", icon: "mdi-alarm-check", link: "Appointment" },
-        { text: "Usuários", icon: "mdi-account-edit", link: "Admin" },
-        { text: "Medicamentos", icon: "mdi-pill", link: "Medications" },
-        { text: "Exames", icon: "mdi-inbox-multiple", link: "Exams" },
-        { text: "Sobre", icon: "mdi-help", link: "About" },
+        {
+          text: "Agenda",
+          icon: "mdi-calendar",
+          link: "Schedule",
+          acesso: ["Recepção", "Médico", "Administrador"],
+          consultaAtiva: false,
+        },
+        {
+          text: "Pacientes",
+          icon: "mdi-account",
+          link: "Patients",
+          acesso: ["Recepção", "Médico", "Administrador"],
+          consultaAtiva: false,
+        },
+        {
+          text: "Consulta",
+          icon: "mdi-alarm-check",
+          link: "Appointment",
+          acesso: ["Médico"],
+          consultaAtiva: true,
+        },
+        {
+          text: "Usuários",
+          icon: "mdi-account-edit",
+          link: "Admin",
+          acesso: ["Administrador"],
+          consultaAtiva: false,
+        },
+        {
+          text: "Medicamentos",
+          icon: "mdi-pill",
+          link: "Medications",
+          acesso: ["Administrador"],
+          consultaAtiva: false,
+        },
+        {
+          text: "Exames",
+          icon: "mdi-inbox-multiple",
+          link: "Exams",
+          acesso: ["Administrador"],
+          consultaAtiva: false,
+        },
       ],
       links: [],
     };
@@ -115,6 +155,8 @@ export default {
     vtoast,
   },
   mounted() {
+    let appointment = JSON.parse(localStorage.appointment);
+    if (appointment) this.$store.dispatch("START_APPOINTMENT", appointment);
     this.$root.vtoast = this.$refs.vtoast;
     this.checkLogged();
   },

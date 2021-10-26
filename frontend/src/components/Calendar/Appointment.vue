@@ -6,21 +6,21 @@
       <v-card-text>
         <v-form>
           <v-row>
-            <v-col cols="12" xl="6">
+            <v-col cols="12" lg="6">
               <v-autocomplete
                 v-model="doctor"
                 prepend-icon="mdi-doctor"
                 outlined
                 dense
                 :items="doctors"
-                @change="resetFields"
+                @change="loadHistory"
                 label="Médico"
                 item-text="name"
                 item-value="_id"
               ></v-autocomplete>
               <div class="caption mx-4" v-if="doctor" v-html="doctorInfo"></div>
             </v-col>
-            <v-col cols="12" xl="6">
+            <v-col cols="12" lg="6">
               <v-autocomplete
                 v-model="patient"
                 prepend-icon="mdi-account-circle"
@@ -39,56 +39,72 @@
               ></div>
             </v-col>
             <v-col cols="12" lg="6">
-              <v-select
-                prepend-icon="mdi-menu"
-                v-model="selectedTipo"
-                outlined
-                :items="tipoConsulta"
-                dense
-                label="Tipo de consulta"
-                :disabled="!doctor || !patient"
-                @change="generateTimeTable"
-              ></v-select>
+              <v-menu
+                v-model="menuDate"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="formattedDate"
+                    dense
+                    outlined
+                    readonly
+                    label="Data da consulta"
+                    prepend-icon="mdi-calendar"
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker
+                  v-model="appointmentDate"
+                  :allowed-dates="allowed"
+                  locale="pt-br"
+                  :min="today"
+                  @input="menuDate = false"
+                  @change="generateTimeTable"
+                ></v-date-picker>
+              </v-menu>
             </v-col>
-            <v-col cols="12" lg="6" v-if="alertText">
-              <v-alert dense border="bottom" :color="alertColor">{{
-                alertText
-              }}</v-alert>
+
+            <v-col cols="12" lg="6">
+              <v-alert
+                dense
+                border="bottom"
+                :color="alertColor"
+                v-if="alertLast"
+              >
+                {{ alertLast }}</v-alert
+              >
+              <v-alert
+                dense
+                border="bottom"
+                :color="alertColor"
+                v-if="alertNext"
+              >
+                {{ alertNext }}</v-alert
+              >
             </v-col>
           </v-row>
-          <section v-if="doctor && patient && selectedTipo">
+          <section v-if="doctor && patient && appointmentDate">
             <v-divider class="mb-6"></v-divider>
             <v-row>
               <v-col cols="12" lg="6">
-                <v-menu
-                  v-model="menuDate"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="formattedDate"
-                      dense
-                      outlined
-                      readonly
-                      label="Data da consulta"
-                      prepend-icon="mdi-calendar"
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="appointmentDate"
-                    :allowed-dates="allowed"
-                    locale="pt-br"
-                    :min="today"
-                    @input="menuDate = false"
-                  ></v-date-picker>
-                </v-menu>
+                <v-select
+                  prepend-icon="mdi-menu"
+                  v-model="selectedTipo"
+                  outlined
+                  :items="tipoConsulta"
+                  dense
+                  label="Tipo de consulta"
+                  :disabled="!doctor || !patient"
+                  @change="generateTimeTable"
+                ></v-select>
               </v-col>
+
               <v-col cols="12" lg="6">
                 <v-select
                   :key="availableSlots.length"
@@ -119,6 +135,7 @@
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 export default {
   props: {
@@ -146,7 +163,9 @@ export default {
       return values;
     },
     formattedDate() {
-      return dayjs(this.appointmentDate).format("DD/MM/YYYY");
+      return this.appointmentDate
+        ? dayjs(this.appointmentDate).format("DD/MM/YYYY")
+        : "";
     },
     doctorInfo() {
       let doctor = this.doctors.find((el) => el._id === this.doctor);
@@ -169,7 +188,7 @@ export default {
       patients: [],
       doctor: null,
       doctors: [],
-      appointmentDate: dayjs().format("YYYY-MM-DD"),
+      appointmentDate: null,
       today: dayjs().format("YYYY-MM-DD"),
       menuDate: false,
       availableSlots: [],
@@ -177,7 +196,8 @@ export default {
       tipoConsulta: ["Consulta", "Retorno"],
       selectedTipo: null,
       busy: false,
-      alertText: null,
+      alertLast: null,
+      alertNext: null,
       alertColor: "red lighten-4",
     };
   },
@@ -218,24 +238,51 @@ export default {
       this.$emit("close", false);
     },
     generateTimeTable() {
-      let increment = this.selectedTipo === "Consulta" ? 30 : 15;
-      let start = dayjs(`${this.appointmentDate}T08:00:00.000`);
-      this.availableSlots = [];
-      while (start.hour() < 18) {
-        this.availableSlots.push(start.format("HH:mm"));
-        start = start.add(increment, "minutes");
-      }
+      if (!this.doctor || !this.appointmentDate) return;
+      let payload = {
+        doctorId: this.doctor,
+        date: this.appointmentDate,
+      };
+      dayjs.extend(isSameOrBefore);
+      axios
+        .post("/appointment/getSlots", payload)
+        .then((res) => {
+          let unavailable = res.data;
+          let currentIndex = 0;
+          let maxIndex = unavailable.length;
+          let duration = this.selectedTipo === "Consulta" ? 30 : 15;
+          let start = dayjs(`${this.appointmentDate}T08:00:00.000`);
+          this.availableSlots = [];
+          while (start.hour() < 18) {
+            if (currentIndex === maxIndex) {
+              this.availableSlots.push(start.format("HH:mm"));
+              start = start.add(15, "minutes");
+            } else if (
+              start
+                .add(duration, "minutes")
+                .isSameOrBefore(dayjs(unavailable[currentIndex].date))
+            ) {
+              this.availableSlots.push(start.format("HH:mm"));
+              start = start.add(15, "minutes");
+            } else {
+              let inc = unavailable[currentIndex].tipo === "Consulta" ? 30 : 15;
+              start = dayjs(unavailable[currentIndex].date).add(inc, "minutes");
+              currentIndex++;
+            }
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
-    resetFields() {
-      this.selectedTipo = "";
-      this.selectedSlot = "";
+    resetDate() {
+      this.appointmentDate = null;
     },
     loadDoctors() {
       axios
         .get("/users/doctors")
         .then((res) => {
           this.doctors = res.data;
-          console.log(this.doctors);
         })
         .catch((err) => {
           this.$root.vtoast.show({
@@ -260,18 +307,48 @@ export default {
         });
     },
     loadHistory() {
-      this.resetFields();
+      this.resetDate();
+      if (!this.doctor || !this.patient) return;
       axios
         .get(`/appointment/byPatient/${this.patient}`)
         .then((res) => {
           let consultas = res.data;
-          console.log(consultas);
           if (!consultas.length) {
-            this.alertText = "Primeira consulta na clínica";
+            this.alertLast = "Primeira consulta na clínica";
+            this.alertNext = null;
             this.alertColor = "green lighten-4";
           } else {
-            this.alertText = "Cliente já foi atendido anteriormente";
-            this.alertColor = "yellow lighten-2";
+            let filtered = res.data.filter(
+              (el) => el.doctorId._id === this.doctor
+            );
+            if (!filtered.length) {
+              this.alertLast = "Primeira consulta com o médico";
+              this.alertColor = "green lighten-4";
+              this.alertNext = null;
+              return;
+            }
+            let foundNext = false;
+            let indexLast;
+            let indexNext;
+            let index = 0;
+            while (!foundNext && index < filtered.length) {
+              if (dayjs(filtered[index].date).isAfter(dayjs())) {
+                indexLast = index - 1;
+                indexNext = index;
+                foundNext = true;
+              }
+              index++;
+            }
+            if (!foundNext) indexLast = 0;
+            let last = indexLast >= 0 ? filtered[indexLast] : null;
+            let next = indexNext >= 0 ? filtered[indexNext] : null;
+            this.alertLast = last
+              ? `Ultima consulta em ${dayjs(last.date).format("DD/MM/YY")}.`
+              : "Novo paciente do médico.";
+            this.alertNext = next
+              ? `${next.tipo} em ${dayjs(next.date).format("DD/MM/YY")}.`
+              : null;
+            this.alertColor = "yellow lighten-4";
           }
         })
         .catch((err) => {
@@ -286,7 +363,7 @@ export default {
   mounted() {
     this.loadDoctors();
     this.loadPatients();
-    this.generateTimeTable(true);
+    this.generateTimeTable();
   },
 };
 </script>
