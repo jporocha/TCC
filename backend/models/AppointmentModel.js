@@ -1,6 +1,24 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+let PosologyModel = new mongoose.Schema({
+  medId: {
+    type: Schema.Types.ObjectId,
+    ref: "Medicine",
+  },
+  medicine: String,
+  dosage: String,
+  posologia: String,
+});
+
+let ExamModel = new mongoose.Schema({
+  examId: {
+    type: Schema.Types.ObjectId,
+    ref: "Exams",
+  },
+  exam: String,
+});
+
 let appointmentSchema = new mongoose.Schema({
   date: {
     type: Date,
@@ -20,18 +38,10 @@ let appointmentSchema = new mongoose.Schema({
     default: false,
   },
   encryptedNotes: String,
-  prescription: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Posology",
-    },
-  ],
-  exams: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "ExamRequest",
-    },
-  ],
+  prescription: [PosologyModel],
+  exams: [ExamModel],
+  start: String,
+  end: String,
 });
 
 const model = mongoose.model("Appointment", appointmentSchema);

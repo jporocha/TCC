@@ -86,14 +86,14 @@ export default {
   methods: {
     emitChanges() {
       let payload = {
-        field: "doctorNotes",
+        header: "doctorNotes",
         payload: this.doctorNotes,
       };
       this.$store.dispatch("SAVE_CHANGES", payload);
     },
   },
   mounted() {
-    this.doctorNotes = this.$store.getters.getAppointment.doctorNotes;
+    this.doctorNotes = this.$store.getters.getNotes;
   },
 };
 </script>

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex, { Store } from "vuex";
-import dayjs from "dayjs";
+import axios from "axios";
 
 Vue.use(Vuex);
 
@@ -9,9 +9,10 @@ export default new Vuex.Store({
     user: null,
     appointment: {
       _id: null,
+      date: null,
       start: null,
       end: null,
-      patient: null,
+      patientId: null,
       prescription: [],
       exams: [],
       doctorNotes: {
@@ -29,73 +30,104 @@ export default new Vuex.Store({
     getUser: (state) => {
       return state.user;
     },
-    getTimes: (state) => {
-      return {
-        start: state.appointment.start,
-        end: state.appointment.end,
-      };
-    },
     getPatient: (state) => {
-      return state.appointment.patient;
+      return state.appointment.patientId;
     },
-    getAppointment: (state) => {
-      return state.appointment;
+    getNotes: (state) => {
+      return state.appointment.doctorNotes;
     },
-    inProgress: (state) => {
-      return state.appointment.start && !state.appointment.end;
+    getPrescriptions: (state) => {
+      return state.appointment.prescription;
+    },
+    getExams: (state) => {
+      return state.appointment.exams;
     },
   },
   mutations: {
     setUser(state, user) {
       state.user = user;
     },
-    startAppointment(state, appointment) {
-      state.appointment.patient = appointment.patientId;
-      state.appointment._id = appointment._id;
-      state.appointment.end = null;
-      state.appointment.start = state.appointment.start
-        ? state.appointment.start
-        : dayjs();
+    loadAppointment(state, appointment) {
+      state.appointment = appointment;
     },
-    finishAppointment(state) {
-      if (state.appointment.start) {
-        state.appointment.end = dayjs();
-      }
-    },
-    updateAppointment(state, changes) {
-      state[changes.field] = changes.payload;
+    editAppointment(state, changes = null) {
+      if (changes) state.appointment[changes.header] = changes.payload;
+      localStorage.setItem("appointment", JSON.stringify(state.appointment));
     },
     loadLocalStorage(state) {
-      state.appointment = JSON.parse(localStorage.appointment);
+      if (localStorage.getItem("appointment")) {
+        state.appointment = JSON.parse(localStorage.getItem("appointment"));
+      }
     },
-    saveToDB(state) {
-      console.log(state.appointment);
+    saveToDatabase(state) {
       state.appointment = {
+        _id: null,
+        date: null,
         start: null,
         end: null,
         patient: null,
         prescription: [],
         exams: [],
-        doctorNotes: {},
+        doctorNotes: {
+          queixaPrincipal: "",
+          historicoMolestia: "",
+          historicoFamiliar: "",
+          exameFisico: "",
+          examesApresentados: "",
+          hipoteseDiagnostica: "",
+          Condutas: "",
+        },
       };
+      localStorage.setItem("appointment", JSON.stringify(state.appointment));
     },
   },
   actions: {
     SET_USER(context, user) {
       context.commit("setUser", user);
     },
-    START_APPOINTMENT(context, appointment) {
-      context.commit("startAppointment", appointment);
-      context.commit("saveToLocalStorage");
-    },
-    FINISH_APPOINTMENT(context) {
-      context.commit("finishAppointment");
+    LOAD_APPOINTMENT(context, appointment) {
+      context.commit("loadAppointment", appointment);
     },
     SAVE_CHANGES(context, changes) {
-      context.commit("updateAppointment", changes);
+      context.commit("editAppointment", changes);
     },
-    SAVE_APPOINTMENT(context) {
-      context.commit("saveToDB");
+    LOAD_MEMORY(context) {
+      context.commit("loadLocalStorage");
+    },
+    SAVE_APPOINTMENT({ context, state }) {
+      return new Promise((resolve, reject) => {
+        axios
+          .put("/appointment/appointmentResults", state.appointment)
+          .then((res) => {
+            state.appointment = {
+              _id: null,
+              date: null,
+              start: null,
+              end: null,
+              patient: null,
+              prescription: [],
+              exams: [],
+              doctorNotes: {
+                queixaPrincipal: "",
+                historicoMolestia: "",
+                historicoFamiliar: "",
+                exameFisico: "",
+                examesApresentados: "",
+                hipoteseDiagnostica: "",
+                Condutas: "",
+              },
+            };
+            localStorage.setItem(
+              "appointment",
+              JSON.stringify(state.appointment)
+            );
+            resolve(res);
+          })
+          .catch((err) => {
+            console.log("Promise deu ruim");
+            reject(err);
+          });
+      });
     },
   },
 });

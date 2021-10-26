@@ -155,10 +155,9 @@ export default {
     vtoast,
   },
   mounted() {
-    let appointment = JSON.parse(localStorage.appointment);
-    if (appointment) this.$store.dispatch("START_APPOINTMENT", appointment);
     this.$root.vtoast = this.$refs.vtoast;
     this.checkLogged();
+    this.$store.dispatch("LOAD_MEMORY");
   },
   methods: {
     loadRoute(link) {

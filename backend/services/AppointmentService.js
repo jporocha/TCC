@@ -1,5 +1,6 @@
 const AppointmentModel = require("../models/AppointmentModel");
 const EncryptionModel = require("../models/EncryptPairModel");
+const EncryptionPair = new EncryptionModel();
 
 module.exports = class UserService {
   constructor() {}
@@ -74,15 +75,51 @@ module.exports = class UserService {
     }
   }
 
-  static async InsertNotes(slotId, anamnese) {
-    let appointment = await AppointmentModel.findById(slotId);
-    let patient = appointment.patientId;
-    let encryptedNotes = await EncryptionModel.encryptData(patient, anamnese);
-    appointment.encryptedNotes = encryptedNotes;
-    appointment.save();
-    return {
-      payload: "Notas salvas com sucesso.",
-      statusCode: 400,
-    };
+  static async SaveAppointment(dados) {
+    try {
+      let appointment = await AppointmentModel.findById(dados._id);
+      const patient = appointment.patientId;
+      let notas = JSON.stringify(dados.doctorNotes);
+      let encryptedNotes = await EncryptionPair.encryptData(patient, notas);
+      appointment.encryptedNotes = encryptedNotes;
+      dados.exams.forEach((el) => {
+        appointment.exams.push(el);
+      });
+      dados.prescription.forEach((el) => {
+        appointment.prescription.push(el);
+      });
+      appointment.start = dados.start;
+      appointment.end = dados.end;
+      appointment.save();
+      return {
+        payload: "Notas salvas com sucesso.",
+        statusCode: 200,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        payload: "Falha no armazenamento dos dados.",
+        statusCode: 400,
+      };
+    }
+  }
+
+  static async LoadNotes(id) {
+    try {
+      let appointment = await AppointmentModel.findById(id);
+      const notas = appointment.encryptedNotes;
+      const patientId = appointment.patientId;
+      let decryptedNotes = await EncryptionPair.decryptData(patientId, notas);
+      return {
+        payload: decryptedNotes,
+        statusCode: 200,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        payload: "Falha no armazenamento dos dados.",
+        statusCode: 400,
+      };
+    }
   }
 };

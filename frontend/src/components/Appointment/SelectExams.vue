@@ -87,15 +87,24 @@ export default {
         name: exam.name,
         id: this.newExam,
       });
-      console.log(this.examsList);
       this.pickDialog = false;
+      this.emitChanges();
+    },
+    emitChanges() {
+      let payload = {
+        header: "exams",
+        payload: this.examsList,
+      };
+      this.$store.dispatch("SAVE_CHANGES", payload);
     },
     removeItem(item) {
       this.examsList.splice(item, 1);
+      this.emitChanges();
     },
   },
   mounted() {
     this.fetchExams();
+    this.examsList = this.$store.getters.getExams;
   },
 };
 </script>

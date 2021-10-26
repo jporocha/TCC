@@ -23,18 +23,6 @@ router.post("/createAppointment", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/:id", async (req, res) => {
-  let id = req.params.id;
-  let changes = req.body;
-
-  if (!changes)
-    return res.status(400).send("Não foram enviados parâmetros para edição.");
-
-  let response = await AppointmentService.EditAppointment(id, changes);
-
-  res.status(response.statusCode).send(response.payload);
-});
-
 router.get("/byPatient/:id", async (req, res) => {
   let id = req.params.id;
   let response = await AppointmentService.FetchPatientAppointments(id);
@@ -82,6 +70,21 @@ router.post("/getSlots", async (req, res) => {
     cancel: false,
   };
   let response = await AppointmentService.FetchAppointments(payload);
+  res.status(response.statusCode).send(response.payload);
+});
+
+router.put("/appointmentResults", async (req, res) => {
+  const appointment = req.body;
+
+  if (!appointment) return res.status(400).send({ erro: "Dados incompletos" });
+
+  let response = await AppointmentService.SaveAppointment(appointment);
+  res.status(response.statusCode).send(response.payload);
+});
+
+router.get("/decryptedNotes/:id", async (req, res) => {
+  const id = req.params.id;
+  let response = await AppointmentService.LoadNotes(id);
   res.status(response.statusCode).send(response.payload);
 });
 

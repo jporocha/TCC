@@ -103,8 +103,17 @@ export default {
         });
     },
     startAppointment() {
-      console.log(this.appointment);
-      this.$store.dispatch("START_APPOINTMENT", this.appointment);
+      this.appointment.doctorNotes = {
+        queixaPrincipal: "",
+        historicoMolestia: "",
+        historicoFamiliar: "",
+        exameFisico: "",
+        examesApresentados: "",
+        hipoteseDiagnostica: "",
+        Condutas: "",
+      };
+      this.appointment.start = dayjs().format("YYYY-MM-DDTHH:mm:ss");
+      this.$store.dispatch("LOAD_APPOINTMENT", this.appointment);
       this.$router.push("/consulta");
     },
   },

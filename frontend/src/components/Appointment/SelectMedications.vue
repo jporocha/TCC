@@ -126,13 +126,23 @@ export default {
         posologia: "",
       };
       this.pickDialog = false;
+      this.emitChanges();
     },
     removeItem(item) {
       this.medicineList.splice(item, 1);
+      this.emitChanges();
+    },
+    emitChanges() {
+      let payload = {
+        header: "prescription",
+        payload: this.medicineList,
+      };
+      this.$store.dispatch("SAVE_CHANGES", payload);
     },
   },
   mounted() {
     this.fetchMedications();
+    this.medicineList = this.$store.getters.getPrescriptions;
   },
 };
 </script>

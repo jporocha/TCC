@@ -27,6 +27,7 @@ import Anamnese from "@/components/Appointment/Anamnese";
 import AppointmentController from "@/components/Appointment/AppointmentController";
 import SelectMedications from "@/components/Appointment/SelectMedications";
 import SelectExams from "@/components/Appointment/SelectExams";
+import dayjs from "dayjs";
 
 export default {
   components: {
@@ -42,19 +43,24 @@ export default {
   },
   methods: {
     saveAppointment() {
-      this.$store.dispatch("SAVE_APPOINTMENT");
-      this.$router.push("/agenda");
+      let payload = {
+        header: "end",
+        payload: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
+      };
+      this.$store.dispatch("SAVE_CHANGES", payload);
+      this.$store
+        .dispatch("SAVE_APPOINTMENT")
+        .then((res) => {
+          console.log(res);
+          this.$router.push("/agenda");
+        })
+        .catch((err) => {
+          console.log("Erro:", err);
+        });
     },
   },
   beforeMount() {
     if (!this.patient) this.$router.push("/agenda");
-  },
-  beforeRouteLeave(to, from, next) {
-    localStorage.setItem(
-      "appointment",
-      JSON.stringify(this.$store.getters.getAppointment)
-    );
-    next();
   },
 };
 </script>

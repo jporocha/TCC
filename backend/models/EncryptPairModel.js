@@ -10,24 +10,19 @@ if (!idPepper) {
 }
 
 let encryptionSchema = new mongoose.Schema({
-  encryptedId: String,
+  id: String,
   encryptionKey: String,
   encryptionIv: String,
 });
 
 let createPair = async function (patientId) {
   try {
-    const hashedId = await bcrypt.hash(patientId + idPepper, 8);
-    let pairExists = await mongoose
-      .model("EncryptPair")
-      .findOne({ encryptedId: hashedId });
-    if (pairExists) throw "Já existe chave para o paciente informado.";
     let cryptoKey = crypto.randomBytes(32);
     let cryptoIv = crypto.randomBytes(16);
     const pair = {
-      encryptedId: hashedId,
-      encryptionKey: cryptoKey,
-      encriptionIv: cryptoIv,
+      id: patientId,
+      encryptionKey: cryptoKey.toString("hex").slice(0, 32),
+      encryptionIv: cryptoIv.toString("hex").slice(0, 16),
     };
     let newPair = new mongoose.model("EncryptPair")(pair);
     await newPair.save();
@@ -39,41 +34,36 @@ let createPair = async function (patientId) {
 
 encryptionSchema.methods.encryptData = async function (patientId, doctorNotes) {
   try {
-    const hashedId = await bcrypt.hash(patientId + idPepper, 8);
     let pairExists = await mongoose
       .model("EncryptPair")
-      .findOne({ encryptedId: hashedId });
+      .findOne({ id: patientId });
     if (!pairExists) {
-      pairExists = createPair(patientId);
+      console.log("Criando novo par");
+      pairExists = await createPair(patientId);
       if (pairExists.error) throw "Falha ao criar criptografia";
     }
-    let key = pairExists.encriptionKey;
-    let iv = pairExists.encriptionIv;
-    let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-    let encrypted = cipher.update(doctorNotes);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return { encryptedData: encrypted.toString("hex") };
+    let key = pairExists.encryptionKey;
+    let iv = pairExists.encryptionIv;
+    let cipher = await crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+    let encrypted = cipher.update(doctorNotes, "utf-8", "hex");
+    encrypted += cipher.final("hex");
+    return encrypted;
   } catch (e) {
     return { error: e };
   }
 };
 
-encryptionSchema.methods.decryptData = async function (patientId, doctorNotes) {
+encryptionSchema.methods.decryptData = async function (id, doctorNotes) {
   try {
-    const hashedId = await bcrypt.hash(patientId + idPepper, 8);
-    let pairExists = await mongoose
-      .model("EncryptPair")
-      .findOne({ encryptedId: hashedId });
+    let pairExists = await mongoose.model("EncryptPair").findOne({ id: id });
     if (!pairExists)
       throw "Não existe chave de criptografia para o paciente informado.";
-    let key = pairExists.encriptionKey;
-    let iv = pairExists.encriptionIv;
-    let newIv = Buffer.from(iv, "hex");
-    let encryptedText = Buffer.from(doctorNotes, "hex");
-    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), newIv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return { notes: decrypted.toString() };
+    let key = pairExists.encryptionKey;
+    let iv = pairExists.encryptionIv;
+    let decipher = crypto.createDecipheriv(algorithm, key, iv);
+    let decrypted = decipher.update(doctorNotes, "hex", "utf-8");
+    decrypted += decipher.final("utf-8");
+    return decrypted;
   } catch (e) {
     return { error: e };
   }
