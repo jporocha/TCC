@@ -16,7 +16,7 @@ let ExamModel = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: "Exams",
   },
-  exam: String,
+  name: String,
 });
 
 let appointmentSchema = new mongoose.Schema({

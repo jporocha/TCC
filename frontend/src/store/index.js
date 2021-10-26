@@ -124,7 +124,6 @@ export default new Vuex.Store({
             resolve(res);
           })
           .catch((err) => {
-            console.log("Promise deu ruim");
             reject(err);
           });
       });

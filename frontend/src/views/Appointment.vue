@@ -51,11 +51,18 @@ export default {
       this.$store
         .dispatch("SAVE_APPOINTMENT")
         .then((res) => {
-          console.log(res);
+          this.$root.vtoast.show({
+            color: "green",
+            message: "Consulta encerrada com sucesso.",
+          });
           this.$router.push("/agenda");
         })
         .catch((err) => {
-          console.log("Erro:", err);
+          this.$root.vtoast.show({
+            color: "orange",
+            message: err.response.data,
+            icon: "mdi-alert",
+          });
         });
     },
   },

@@ -167,7 +167,11 @@ export default {
           this.events = events;
         })
         .catch((err) => {
-          console.log(err);
+          this.$root.vtoast.show({
+            color: "orange",
+            message: "Falha na busca da agenda",
+            icon: "mdi-alert",
+          });
         });
     },
     showInsert() {

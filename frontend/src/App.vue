@@ -103,7 +103,7 @@ export default {
   data() {
     return {
       drawer: null,
-      selectedItem: 1,
+      selectedItem: -1,
       items: [
         {
           text: "Agenda",
@@ -183,7 +183,11 @@ export default {
           this.$router.push("/");
         })
         .catch((err) => {
-          console.log("Falha no Avatar:", err);
+          this.$root.vtoast.show({
+            color: "orange",
+            message: err.response.data,
+            icon: "mdi-alert",
+          });
         });
     },
     goToHome() {

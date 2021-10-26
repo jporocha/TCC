@@ -10,9 +10,10 @@
     <v-divider class="mb-4"></v-divider>
     <v-card-text v-html="appointmentText"> </v-card-text>
     <v-divider></v-divider>
-    <v-card-actions>
+    <v-card-actions v-if="appointment">
       <v-btn
         small
+        :disabled="!!appointment.end"
         color="red"
         @click="cancelAppointment"
         v-if="user.role === 'Recepção'"
@@ -21,7 +22,7 @@
       <v-spacer></v-spacer>
       <v-btn
         small
-        :disabled="!!patient"
+        :disabled="!!patient || !!appointment.end"
         @click="startAppointment"
         color="blue"
         v-if="appointment && user && user.id === appointment.doctorId._id"
@@ -57,6 +58,10 @@ export default {
       }<br /><strong>Data da consulta: </strong>${dayjs(
         this.appointment.date
       ).format("DD/MM/YYYY[ às ]HH:mm")}`;
+      if (this.appointment.end)
+        text += `<br /><strong>Consulta finalizada em ${dayjs(
+          this.appointment.end
+        ).format("DD/MM/YYYY[ às ]HH:mm")}.`;
       return text;
     },
     user() {

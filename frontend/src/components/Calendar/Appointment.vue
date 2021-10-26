@@ -272,7 +272,11 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err);
+          this.$root.vtoast.show({
+            color: "orange",
+            message: "Falha na busca de horários",
+            icon: "mdi-alert",
+          });
         });
     },
     resetDate() {
