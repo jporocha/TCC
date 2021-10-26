@@ -46,6 +46,11 @@ const routes = [
     component: () => import("../views/Patients.vue"),
   },
   {
+    path: "/prontuario/:id",
+    name: "Prontuario",
+    component: () => import("../views/Prontuario.vue"),
+  },
+  {
     path: "*",
     name: "PageNotFound",
     component: () => import("../views/NotFound.vue"),

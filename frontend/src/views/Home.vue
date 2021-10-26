@@ -1,7 +1,7 @@
 <template>
   <div>
     <ImageHolder
-      asset="scope.jpg"
+      asset="scope2.jpg"
       title="Venha para a CliniMed BH"
       subtitle="Preços acessíveis e qualidade no atendimento"
       color="black"

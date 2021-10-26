@@ -29,6 +29,12 @@ router.get("/", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
+router.get("/:id", async (req, res) => {
+  let id = req.params.id;
+  let response = await PatientService.FetchPatients({ _id: id });
+  res.status(response.statusCode).send(response.payload);
+});
+
 router.put("/:id", async (req, res) => {
   let id = req.params.id;
   let changes = req.body;

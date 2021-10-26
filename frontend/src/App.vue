@@ -102,7 +102,7 @@ export default {
   },
   data() {
     return {
-      drawer: null,
+      drawer: true,
       selectedItem: -1,
       items: [
         {

@@ -2,12 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const algorithm = "aes-256-cbc";
-const idPepper = process.env.PEPPER_ID;
-
-if (!idPepper) {
-  console.log("Sem pepper de criptografia nas variaveis de ambiente");
-  process.exit(1);
-}
 
 let encryptionSchema = new mongoose.Schema({
   id: String,
@@ -38,7 +32,6 @@ encryptionSchema.methods.encryptData = async function (patientId, doctorNotes) {
       .model("EncryptPair")
       .findOne({ id: patientId });
     if (!pairExists) {
-      console.log("Criando novo par");
       pairExists = await createPair(patientId);
       if (pairExists.error) throw "Falha ao criar criptografia";
     }

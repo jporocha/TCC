@@ -96,9 +96,9 @@ module.exports = class UserService {
         statusCode: 200,
       };
     } catch (e) {
-      console.log(e);
+      console.log("Falha na criptografia:", e);
       return {
-        payload: "Falha no armazenamento dos dados.",
+        payload: "Falha no armazenamento dos dados",
         statusCode: 400,
       };
     }
@@ -115,7 +115,7 @@ module.exports = class UserService {
         statusCode: 200,
       };
     } catch (e) {
-      console.log(e);
+      console.log("Falha ao descriptografar:", e);
       return {
         payload: "Falha no armazenamento dos dados.",
         statusCode: 400,
