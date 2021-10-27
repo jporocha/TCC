@@ -38,7 +38,7 @@
                 v-html="patientInfo"
               ></div>
             </v-col>
-            <v-col cols="12" lg="6">
+            <v-col cols="12" lg="6" v-if="doctor">
               <v-menu
                 v-model="menuDate"
                 :close-on-content-click="false"
@@ -286,7 +286,7 @@ export default {
       axios
         .get("/users/doctors")
         .then((res) => {
-          this.doctors = res.data;
+          this.doctors = res.data.filter((el) => el.enabled);
         })
         .catch((err) => {
           this.$root.vtoast.show({
@@ -300,7 +300,7 @@ export default {
       axios
         .get("/patients")
         .then((res) => {
-          this.patients = res.data;
+          this.patients = res.data.filter((el) => el.enabled);
         })
         .catch((err) => {
           this.$root.vtoast.show({

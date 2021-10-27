@@ -49,6 +49,7 @@ export default new Vuex.Store({
     },
     loadAppointment(state, appointment) {
       state.appointment = appointment;
+      localStorage.setItem("appointment", JSON.stringify(state.appointment));
     },
     editAppointment(state, changes = null) {
       if (changes) state.appointment[changes.header] = changes.payload;

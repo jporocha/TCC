@@ -1,21 +1,49 @@
 <template>
   <div>
-    Consulta {{ index + 1 }}
-    <v-row>
-      <template v-for="field in fields">
-        <v-col cols="12" lg="6" :key="field.model" v-if="showProp(field.model)">
-          <v-row>
-            <v-col cols="6">{{ field.name }}</v-col>
-            <v-col cols="6" v-html="showVal(field)"></v-col>
-          </v-row>
-        </v-col>
-      </template>
-    </v-row>
+    <h3 class="text-center">Consulta {{ index + 1 }}</h3>
+    <v-card-text>
+      <v-row>
+        <template v-for="field in fields">
+          <v-col
+            cols="12"
+            lg="6"
+            :key="field.model"
+            v-if="showProp(field.model)"
+          >
+            <v-row>
+              <v-col cols="5" class="text-right font-weight-bold"
+                >{{ field.name }}:</v-col
+              >
+              <v-col cols="7" v-html="showVal(field)"></v-col>
+            </v-row>
+          </v-col>
+        </template>
+      </v-row>
+      <v-divider class="my-2"></v-divider>
+      <v-row v-if="notes">
+        <template v-for="field in campos">
+          <v-col
+            cols="12"
+            lg="6"
+            :key="field.model"
+            v-if="showData(field.model)"
+          >
+            <v-row>
+              <v-col cols="5" class="text-right font-weight-bold"
+                >{{ field.name }}:</v-col
+              >
+              <v-col cols="7" v-html="showNote(field.model)"></v-col>
+            </v-row>
+          </v-col>
+        </template>
+      </v-row>
+    </v-card-text>
   </div>
 </template>
 
 <script>
 import dayjs from "dayjs";
+import axios from "axios";
 export default {
   props: {
     consulta: {
@@ -29,12 +57,21 @@ export default {
       default: 1,
     },
   },
+  mounted() {
+    this.loadNotes();
+  },
   methods: {
     showProp(prop) {
       return this.consulta[prop] &&
         (this.consulta[prop].length || this.consulta[prop].name)
         ? true
         : false;
+    },
+    showData(prop) {
+      return this.notes[prop] ? true : false;
+    },
+    showNote(model) {
+      return this.notes[model];
     },
     showVal(item) {
       let value =
@@ -51,13 +88,31 @@ export default {
           });
         } else {
           value.map((el) => {
-            retorno.push(`${el.name}`);
+            retorno.push(
+              `${el.name} <br /> ${
+                el.result ? "Download" : "Sem resultado"
+              } <br />`
+            );
           });
         }
         return retorno.join("<br />");
       } else {
         return value;
       }
+    },
+    loadNotes() {
+      axios
+        .get(`/appointment/decryptedNotes/${this.consulta._id}`)
+        .then((res) => {
+          let dados = res.data;
+          this.notes = {};
+          for (const prop in dados) {
+            if (dados[prop]) this.notes[prop] = dados[prop];
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
   data() {
@@ -74,21 +129,6 @@ export default {
           name: "Médico",
         },
         {
-          model: "tipo",
-          type: "string",
-          name: "Tipo de consulta",
-        },
-        {
-          model: "start",
-          type: "date",
-          name: "Início da consulta",
-        },
-        {
-          model: "end",
-          type: "date",
-          name: "Término da consulta",
-        },
-        {
           model: "prescription",
           type: "array",
           name: "Medicamentos prescritos",
@@ -99,6 +139,37 @@ export default {
           name: "Exames solicitados",
         },
       ],
+      campos: [
+        {
+          model: "queixaPrincipal",
+          name: "Queixa principal",
+        },
+        {
+          model: "historicoMolestia",
+          name: "Histórico da doença",
+        },
+        {
+          model: "historicoFamiliar",
+          name: "História pregressa e familiar",
+        },
+        {
+          model: "exameFisico",
+          name: "Exame físico",
+        },
+        {
+          model: "examesApresentados",
+          name: "Exames pregressos",
+        },
+        {
+          model: "hipoteseDiagnostica",
+          name: "Hipotese diagnóstica",
+        },
+        {
+          model: "condutas",
+          name: "Conduta",
+        },
+      ],
+      notes: null,
     };
   },
 };

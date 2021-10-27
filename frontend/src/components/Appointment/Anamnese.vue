@@ -79,7 +79,7 @@ export default {
         exameFisico: "",
         examesApresentados: "",
         hipoteseDiagnostica: "",
-        Condutas: "",
+        condutas: "",
       },
     };
   },

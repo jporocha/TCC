@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
+import store from "./../store/index";
 
 Vue.use(VueRouter);
 
@@ -13,6 +14,7 @@ const routes = [
   {
     path: "/admin",
     name: "Admin",
+    meta: { access: "Administrador" },
     component: () => import("../views/Admin.vue"),
   },
   {
@@ -23,11 +25,13 @@ const routes = [
   {
     path: "/exames",
     name: "Exams",
+    meta: { access: "Administrador" },
     component: () => import("../views/Exams.vue"),
   },
   {
     path: "/medicamentos",
     name: "Medications",
+    meta: { access: "Administrador" },
     component: () => import("../views/Medications.vue"),
   },
   {
@@ -46,9 +50,9 @@ const routes = [
     component: () => import("../views/Patients.vue"),
   },
   {
-    path: "/prontuario/:id",
-    name: "Prontuario",
-    component: () => import("../views/Prontuario.vue"),
+    path: "/upload/:id",
+    name: "Upload",
+    component: () => import("../views/Upload.vue"),
   },
   {
     path: "*",
@@ -61,6 +65,26 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (["Home", "Login", "Upload"].includes(to.name)) {
+    next();
+  } else {
+    if (!store.state.user) {
+      next("/");
+    } else {
+      if (to.meta.access) {
+        if (store.state.user.role === to.meta.access) {
+          next();
+        } else {
+          next("/");
+        }
+      } else {
+        next();
+      }
+    }
+  }
 });
 
 const originalPush = VueRouter.prototype.push;

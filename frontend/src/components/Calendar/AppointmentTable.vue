@@ -21,7 +21,7 @@
         small
         color="app"
         @click="showInsert"
-        v-if="userRole === 'Recepção'"
+        v-if="userRole === 'Médico'"
         >Nova consulta</v-btn
       >
     </v-card-title>

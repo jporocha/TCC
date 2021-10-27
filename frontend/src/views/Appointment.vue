@@ -13,10 +13,11 @@
       <v-col cols="12" lg="6">
         <SelectExams />
       </v-col>
-      <v-col cols="12" class="text-right mb-2 pr-6">
-        <v-btn @click="saveAppointment" color="blue"
-          >Encerrar atendimento</v-btn
-        >
+      <v-col cols="12" class="d-flex justify-space-between">
+        <v-btn small text @click="cancelAppointment" color="red"
+          >Cancelar
+        </v-btn>
+        <v-btn small text @click="saveAppointment" color="blue">Salvar </v-btn>
       </v-col>
     </v-row>
   </div>
@@ -64,6 +65,18 @@ export default {
             icon: "mdi-alert",
           });
         });
+    },
+    cancelAppointment() {
+      this.$store.dispatch("LOAD_APPOINTMENT", {
+        queixaPrincipal: "",
+        historicoMolestia: "",
+        historicoFamiliar: "",
+        exameFisico: "",
+        examesApresentados: "",
+        hipoteseDiagnostica: "",
+        Condutas: "",
+      });
+      this.$router.push("/agenda");
     },
   },
   beforeMount() {

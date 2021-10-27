@@ -159,6 +159,12 @@
               ></v-text-field
             ></v-col>
           </v-row>
+          <v-checkbox
+            :disabled="role !== 'Administrador'"
+            v-model="client.enabled"
+            label="Habilitado no sistema?"
+          >
+          </v-checkbox>
           <v-divider class="my-6"></v-divider>
           <v-card-actions class="d-flex">
             <v-btn text color="red" @click="closeUser">Fechar</v-btn>
@@ -184,6 +190,9 @@ export default {
     formattedDate() {
       return dayjs(this.client.dateOfBirth).format("DD/MM/YYYY");
     },
+    role() {
+      return this.$store.getters.getUser.role;
+    },
   },
   data() {
     return {
@@ -196,6 +205,7 @@ export default {
         dateOfBirth: dayjs().subtract(14, "years").format("YYYY-MM-DD"),
         cellPhone: "",
         disponibilidade: [],
+        enabled: true,
         addr: {
           rua: "",
           numero: "",

@@ -66,6 +66,12 @@
               </v-menu>
             </v-col>
           </v-row>
+          <v-checkbox
+            :disabled="role !== 'Administrador'"
+            v-model="client.enabled"
+            label="Habilitado no sistema?"
+          >
+          </v-checkbox>
           <v-divider class="my-6"></v-divider>
           <v-card-actions class="d-flex">
             <v-btn text color="red" @click="closePatient">Fechar</v-btn>
@@ -91,6 +97,9 @@ export default {
     formattedDate() {
       return dayjs(this.client.dateOfBirth).format("DD/MM/YYYY");
     },
+    role() {
+      return this.$store.getters.getUser.role;
+    },
   },
   data() {
     return {
@@ -100,6 +109,7 @@ export default {
         cellPhone: "",
         nameOfParents: "",
         cpf: "",
+        enabled: true,
       },
       menuNascimento: false,
       today: dayjs().format("YYYY-MM-DD"),
