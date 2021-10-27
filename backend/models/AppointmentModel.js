@@ -12,11 +12,15 @@ let PosologyModel = new mongoose.Schema({
 });
 
 let ExamModel = new mongoose.Schema({
-  examId: {
+  id: {
     type: Schema.Types.ObjectId,
     ref: "Exams",
   },
   name: String,
+  result: {
+    type: Schema.Types.ObjectId,
+    ref: "File",
+  },
 });
 
 let appointmentSchema = new mongoose.Schema({

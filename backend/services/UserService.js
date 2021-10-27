@@ -20,7 +20,7 @@ module.exports = class UserService {
   }
 
   static async CreateAccessToken(email) {
-    let userExists = await UserModel.find({ email });
+    let userExists = await UserModel.find({ email: email, enabled: true });
     if (!userExists.length)
       return {
         payload: "E-mail não cadastrado",
@@ -34,7 +34,7 @@ module.exports = class UserService {
   }
 
   static async RecoverPassword(email) {
-    let userExists = await UserModel.find({ email });
+    let userExists = await UserModel.find({ email: email, enabled: true });
     if (!userExists.length)
       return {
         payload: "E-mail não cadastrado",
@@ -48,7 +48,7 @@ module.exports = class UserService {
   }
 
   static async ResetPassword(email, token, newPassword) {
-    let userExists = await UserModel.findOne({ email });
+    let userExists = await UserModel.findOne({ email: email, enabled: true });
 
     if (!userExists)
       return {
@@ -85,7 +85,7 @@ module.exports = class UserService {
   static async FetchUsers(onlyDoctors) {
     let query = onlyDoctors ? { role: "Médico" } : {};
     let users = await UserModel.find(query).sort({ name: 1 });
-    if (users.length)
+    if (users)
       return {
         payload: users,
         statusCode: 200,

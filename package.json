@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/jporocha/TCC#readme",
   "dependencies": {
-    "aws-sdk": "^2.997.0",
+    "aws-sdk": "^2.1016.0",
     "bcrypt": "^5.0.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",

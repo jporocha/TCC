@@ -1,6 +1,9 @@
 const AppointmentModel = require("../models/AppointmentModel");
 const EncryptionModel = require("../models/EncryptPairModel");
+const FileService = require("../services/FileService");
 const EncryptionPair = new EncryptionModel();
+
+FileService.SendFiles();
 
 module.exports = class UserService {
   constructor() {}
@@ -82,15 +85,27 @@ module.exports = class UserService {
       let notas = JSON.stringify(dados.doctorNotes);
       let encryptedNotes = await EncryptionPair.encryptData(patient, notas);
       appointment.encryptedNotes = encryptedNotes;
-      dados.exams.forEach((el) => {
-        appointment.exams.push(el);
-      });
+      appointment.exams = [];
+      let teste = [];
+      for (const el of dados.exams) {
+        let examData = {
+          nameOfExam: el.name,
+          patientId: patient,
+        };
+        let fileId = await FileService.CreateFile(examData);
+        if (fileId.erro) throw "Falha ao salvar dados";
+        let payload = el;
+        payload.result = fileId;
+        appointment.exams.push(payload);
+        teste.push(payload);
+      }
       dados.prescription.forEach((el) => {
         appointment.prescription.push(el);
       });
       appointment.start = dados.start;
       appointment.end = dados.end;
       appointment.save();
+      FileService.SendFiles();
       return {
         payload: "Notas salvas com sucesso.",
         statusCode: 200,

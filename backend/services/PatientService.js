@@ -20,6 +20,7 @@ module.exports = class PatientService {
   }
 
   static async FetchPatients(query = {}) {
+    query.enabled = true;
     let patients = await PatientModel.find(query).sort({ name: 1 });
     if (patients.length >= 0)
       return {

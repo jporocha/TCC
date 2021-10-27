@@ -6,7 +6,7 @@ let patientSchema = new mongoose.Schema({
   cellPhone: { type: String, required: true },
   nameOfParents: String,
   cpf: String,
-  enabled: Boolean,
+  enabled: { type: Boolean, default: true },
 });
 
 const model = mongoose.model("Patient", patientSchema, "Patients");

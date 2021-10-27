@@ -35,7 +35,7 @@ let userSchema = new mongoose.Schema({
   dateOfBirth: String,
   cellPhone: { type: String, required: true },
   addr: AddressSchema,
-  enabled: Boolean,
+  enabled: { type: Boolean, default: true },
 });
 
 // Para cadastro de usuário
@@ -60,7 +60,7 @@ userSchema.methods.validateLogin = async function (user) {
   try {
     const userExists = await mongoose
       .model("User")
-      .findOne({ email: user.email });
+      .findOne({ email: user.email, enabled: true });
     if (!userExists) throw "Usuário ou senha inválidos.";
     if (!user.password) throw "Usuário ou senha inválidos";
     const validateUser = await bcrypt.compare(
