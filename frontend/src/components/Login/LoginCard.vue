@@ -12,6 +12,7 @@
           outlined
           :rules="emailRules"
           dense
+          v-on:keyup.enter="login"
         ></v-text-field>
         <v-text-field
           prepend-icon="mdi-account-key-outline"
@@ -19,6 +20,7 @@
           @click:append="showPass = !showPass"
           :type="showPass ? 'text' : 'password'"
           v-model="password"
+          v-on:keyup.enter="login"
           label="Senha"
           required
           outlined

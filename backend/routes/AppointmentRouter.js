@@ -82,9 +82,20 @@ router.put("/appointmentResults", auth(), async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/decryptedNotes/:id", auth("Médico"), async (req, res) => {
+router.get("/decryptedNotes/:id", auth(), async (req, res) => {
   const id = req.params.id;
   let response = await AppointmentService.LoadNotes(id);
+  res.status(response.statusCode).send(response.payload);
+});
+
+router.put("/appointmentReview", auth("Administrador"), async (req, res) => {
+  const { id, doctorNotes } = req.body;
+  if (!doctorNotes || !id)
+    return res.status(400).send({ erro: "Dados incompletos" });
+  let response = await AppointmentService.ChangeAppointmentData(
+    id,
+    doctorNotes
+  );
   res.status(response.statusCode).send(response.payload);
 });
 

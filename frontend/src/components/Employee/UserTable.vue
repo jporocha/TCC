@@ -36,6 +36,9 @@
         'sort-by-text': 'Organizar por',
       }"
     >
+      <template v-slot:[`item.enabled`]="{ item }">
+        <v-simple-checkbox v-model="item.enabled" disabled></v-simple-checkbox>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -75,6 +78,11 @@ export default {
         },
         { text: "E-mail", value: "email", sortable: false },
         { text: "Função", value: "role", sortable: false },
+        {
+          text: "Ativo?",
+          value: "enabled",
+          sortable: false,
+        },
         {
           text: "Ações",
           value: "actions",

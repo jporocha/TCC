@@ -66,6 +66,12 @@ const routes = [
     component: () => import("../views/DoctorExams.vue"),
   },
   {
+    path: "/prontuarios",
+    name: "Prontuario",
+    meta: { access: "Administrador" },
+    component: () => import("../views/Prontuario.vue"),
+  },
+  {
     path: "*",
     name: "PageNotFound",
     component: () => import("../views/NotFound.vue"),

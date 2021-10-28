@@ -25,7 +25,8 @@ router.post("/newPatient", auth(), async (req, res) => {
 });
 
 router.get("/", auth(), async (req, res) => {
-  let response = await PatientService.FetchPatients();
+  let query = req.user.role === "Administrador" ? {} : { enabled: true };
+  let response = await PatientService.FetchPatients(query);
   res.status(response.statusCode).send(response.payload);
 });
 

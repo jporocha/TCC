@@ -17,7 +17,7 @@
       >
     </v-card-title>
     <v-data-table
-      :headers="patientHeader"
+      :headers="patientHeaders"
       :items="patients"
       :search="busca"
       dense
@@ -36,6 +36,9 @@
         'sort-by-text': 'Organizar por',
       }"
     >
+      <template v-slot:[`item.enabled`]="{ item }">
+        <v-simple-checkbox v-model="item.enabled" disabled></v-simple-checkbox>
+      </template>
       <template v-slot:[`item.dateOfBirth`]="{ item }">
         {{ formatDate(item.dateOfBirth) }}
       </template>
@@ -70,9 +73,10 @@ export default {
   components: {
     EditPatient,
   },
-  computed: {
-    patientHeader() {
-      let headers = [
+  data() {
+    return {
+      patients: [],
+      patientHeaders: [
         {
           text: "Nome",
           value: "name",
@@ -85,18 +89,17 @@ export default {
           sortable: false,
         },
         {
+          text: "Ativo?",
+          value: "enabled",
+          sortable: false,
+        },
+        {
           text: "Ações",
           value: "actions",
           sortable: false,
           align: "center",
         },
-      ];
-      return headers;
-    },
-  },
-  data() {
-    return {
-      patients: [],
+      ],
       loading: true,
       busca: "",
       patient: null,

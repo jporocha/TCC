@@ -120,13 +120,6 @@ export default {
           consultaAtiva: false,
         },
         {
-          text: "Consulta",
-          icon: "mdi-alarm-check",
-          link: "Appointment",
-          acesso: ["Médico"],
-          consultaAtiva: true,
-        },
-        {
           text: "Usuários",
           icon: "mdi-account-edit",
           link: "Admin",
@@ -154,6 +147,20 @@ export default {
           acesso: ["Médico"],
           consultaAtiva: false,
         },
+        {
+          text: "Prontuário",
+          icon: "mdi-inbox",
+          link: "Prontuario",
+          acesso: ["Administrador"],
+          consultaAtiva: false,
+        },
+        {
+          text: "Consulta",
+          icon: "mdi-alarm-check",
+          link: "Appointment",
+          acesso: ["Médico"],
+          consultaAtiva: true,
+        },
       ],
       links: [],
     };
@@ -161,9 +168,11 @@ export default {
   components: {
     vtoast,
   },
+  beforeMount() {
+    this.checkLogged();
+  },
   mounted() {
     this.$root.vtoast = this.$refs.vtoast;
-    this.checkLogged();
     this.$store.dispatch("LOAD_MEMORY");
   },
   methods: {

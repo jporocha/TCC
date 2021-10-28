@@ -10,6 +10,7 @@ router.post("/createUser", auth("Administrador"), async (req, res) => {
     name,
     email,
     role,
+    disponibilidade,
     emphasis,
     partners,
     dateOfBirth,
@@ -25,6 +26,7 @@ router.post("/createUser", auth("Administrador"), async (req, res) => {
     email,
     role,
     emphasis,
+    disponibilidade,
     partners,
     dateOfBirth,
     cellPhone,
@@ -66,12 +68,13 @@ router.post("/accessToken", async (req, res) => {
 });
 
 router.get("/", auth(), async (req, res) => {
-  let response = await UserService.FetchUsers(false);
+  let query = req.user.role === "Administrador" ? {} : { enabled: true };
+  let response = await UserService.FetchUsers(query);
   res.status(response.statusCode).send(response.payload);
 });
 
 router.get("/doctors", auth(), async (req, res) => {
-  let response = await UserService.FetchUsers(true);
+  let response = await UserService.FetchUsers({ role: "Médico" });
   res.status(response.statusCode).send(response.payload);
 });
 

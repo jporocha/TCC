@@ -88,7 +88,6 @@ module.exports = class UserService {
       let encryptedNotes = await EncryptionPair.encryptData(patient, notas);
       appointment.encryptedNotes = encryptedNotes;
       appointment.exams = [];
-      let teste = [];
       for (const el of dados.exams) {
         let examData = {
           nameOfExam: el.name,
@@ -136,6 +135,27 @@ module.exports = class UserService {
       console.log("Falha ao descriptografar:", e);
       return {
         payload: "Falha no armazenamento dos dados.",
+        statusCode: 400,
+      };
+    }
+  }
+
+  static async ChangeAppointmentData(id, notes) {
+    try {
+      let appointment = await AppointmentModel.findById(id);
+      const patient = appointment.patientId;
+      let notas = JSON.stringify(notes);
+      let encryptedNotes = await EncryptionPair.encryptData(patient, notas);
+      appointment.encryptedNotes = encryptedNotes;
+      appointment.save();
+      return {
+        payload: "Notas salvas com sucesso.",
+        statusCode: 200,
+      };
+    } catch (e) {
+      console.log("Falha na criptografia:", e);
+      return {
+        payload: "Falha no armazenamento dos dados",
         statusCode: 400,
       };
     }
