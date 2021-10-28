@@ -10,10 +10,14 @@ let fileSchema = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: "Patient",
   },
-  uploadCode: { type: String, default: "" },
+  doctorId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
+  uploadCode: { type: String, default: null },
+  downloadCode: { type: String, default: null },
+  patientEmail: { type: String, default: null },
   sentToLab: { type: Boolean, default: false },
-  sentToPatient: { type: Boolean, default: false },
-  patientEmail: String,
 });
 
 const model = mongoose.model("File", fileSchema, "Files");

@@ -55,6 +55,17 @@ const routes = [
     component: () => import("../views/Upload.vue"),
   },
   {
+    path: "/download/:id",
+    name: "Download",
+    component: () => import("../views/Download.vue"),
+  },
+  {
+    path: "/resultados",
+    name: "Resultados",
+    meta: { access: "Médico" },
+    component: () => import("../views/DoctorExams.vue"),
+  },
+  {
     path: "*",
     name: "PageNotFound",
     component: () => import("../views/NotFound.vue"),
@@ -68,7 +79,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (["Home", "Login", "Upload"].includes(to.name)) {
+  if (["Home", "Login", "Upload", "Download"].includes(to.name)) {
     next();
   } else {
     if (!store.state.user) {

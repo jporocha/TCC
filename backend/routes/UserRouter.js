@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
-router.post("/createUser", async (req, res) => {
+router.post("/createUser", auth("Administrador"), async (req, res) => {
   const {
     name,
     email,
@@ -65,17 +65,17 @@ router.post("/accessToken", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/", async (req, res) => {
+router.get("/", auth(), async (req, res) => {
   let response = await UserService.FetchUsers(false);
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/doctors", async (req, res) => {
+router.get("/doctors", auth(), async (req, res) => {
   let response = await UserService.FetchUsers(true);
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth("Administrador"), async (req, res) => {
   let id = req.params.id;
   let changes = req.body;
 

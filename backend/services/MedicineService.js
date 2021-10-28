@@ -27,8 +27,8 @@ module.exports = class MedicineService {
     }
   }
 
-  static async FetchMedications() {
-    let dados = await MedicineModel.find();
+  static async FetchMedications(query) {
+    let dados = await MedicineModel.find(query);
     if (!dados) {
       return {
         payload: "Falha ao buscar dados.",

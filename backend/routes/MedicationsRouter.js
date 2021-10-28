@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
-router.post("/", async (req, res) => {
+router.post("/", auth("Administrador"), async (req, res) => {
   const { brandLabel, labName, activePrinciple, enabled = true } = req.body;
   if (!brandLabel || !labName || !activePrinciple)
     return res.status(400).send("Dados mínimos incompletos");
@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/edit/:id", async (req, res) => {
+router.put("/edit/:id", auth("Administrador"), async (req, res) => {
   const { brandLabel, labName, activePrinciple, enabled = true } = req.body;
   if (!brandLabel || !labName || !activePrinciple)
     return res.status(400).send("Dados incompletos");
@@ -34,8 +34,9 @@ router.put("/edit/:id", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/", async (req, res) => {
-  let response = await MedicineService.FetchMedications();
+router.get("/", auth(), async (req, res) => {
+  let query = req.user.role === "Administrador" ? {} : { enabled: true };
+  let response = await MedicineService.FetchMedications(query);
   res.status(response.statusCode).send(response.payload);
 });
 

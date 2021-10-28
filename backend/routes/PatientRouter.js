@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
-router.post("/newPatient", async (req, res) => {
+router.post("/newPatient", auth(), async (req, res) => {
   const { name, dateOfBirth, cellPhone, nameOfParents, cpf } = req.body;
 
   if (!name || !cellPhone || (!nameOfParents && !cpf))
@@ -24,18 +24,18 @@ router.post("/newPatient", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/", async (req, res) => {
+router.get("/", auth(), async (req, res) => {
   let response = await PatientService.FetchPatients();
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth(), async (req, res) => {
   let id = req.params.id;
   let response = await PatientService.FetchPatients({ _id: id });
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth(), async (req, res) => {
   let id = req.params.id;
   let changes = req.body;
 

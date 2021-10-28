@@ -20,6 +20,27 @@
         </template>
       </v-row>
       <v-divider class="my-2"></v-divider>
+      <section v-if="consulta.exams.length">
+        <h4 class="text-center">Exames solicitados</h4>
+        <v-row>
+          <v-col
+            v-for="exam in consulta.exams"
+            cols="12"
+            md="4"
+            :key="exam._id"
+          >
+            <div class="text-center">
+              <strong>Nome do exame: </strong>{{ exam.name }}<br />
+              <strong>Resultado: </strong>
+              <template v-if="exam.result.key">
+                <u class="anchor" @click="download(exam.result)">Download</u>
+              </template>
+              <template v-else> - </template>
+            </div>
+          </v-col>
+        </v-row>
+        <v-divider class="my-2"></v-divider>
+      </section>
       <v-row v-if="notes">
         <template v-for="field in campos">
           <v-col
@@ -63,9 +84,34 @@ export default {
   methods: {
     showProp(prop) {
       return this.consulta[prop] &&
-        (this.consulta[prop].length || this.consulta[prop].name)
+        (this.consulta[prop].length || this.consulta[prop].name) &&
+        prop != "exams"
         ? true
         : false;
+    },
+    download(exam) {
+      axios
+        .post(`/file/download`, exam, {
+          responseType: "blob",
+        })
+        .then((res) => {
+          const url = window.URL.createObjectURL(new Blob([res.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", exam.filename);
+          document.body.appendChild(link);
+          link.click();
+          this.$root.vtoast.show({
+            color: "green",
+            message: "Download realizado",
+          });
+        })
+        .catch((err) => {
+          this.$root.vtoast.show({
+            color: "orange",
+            message: err.response.data,
+          });
+        });
     },
     showData(prop) {
       return this.notes[prop] ? true : false;
@@ -90,7 +136,7 @@ export default {
           value.map((el) => {
             retorno.push(
               `${el.name} <br /> ${
-                el.result ? "Download" : "Sem resultado"
+                el.result.filename ? "Download" : "Sem resultado"
               } <br />`
             );
           });
@@ -176,4 +222,8 @@ export default {
 </script>
 
 <style scoped>
+.anchor {
+  color: blue;
+  cursor: pointer;
+}
 </style>

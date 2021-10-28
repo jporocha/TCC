@@ -102,7 +102,7 @@ export default {
   },
   data() {
     return {
-      drawer: true,
+      drawer: false,
       selectedItem: -1,
       items: [
         {
@@ -145,6 +145,13 @@ export default {
           icon: "mdi-inbox-multiple",
           link: "Exams",
           acesso: ["Administrador"],
+          consultaAtiva: false,
+        },
+        {
+          text: "Resultados",
+          icon: "mdi-inbox",
+          link: "Resultados",
+          acesso: ["Médico"],
           consultaAtiva: false,
         },
       ],

@@ -27,8 +27,8 @@ module.exports = class ExamsService {
     }
   }
 
-  static async FetchExams() {
-    let dados = await ExamsModel.find();
+  static async FetchExams(query) {
+    let dados = await ExamsModel.find(query);
     if (!dados) {
       return {
         payload: "Falha ao realizar consulta.",

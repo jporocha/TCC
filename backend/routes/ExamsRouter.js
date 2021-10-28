@@ -5,7 +5,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 
-router.post("/", async (req, res) => {
+router.post("/", auth("Administrador"), async (req, res) => {
   const { name, enabled = true } = req.body;
   if (!name) return res.status(400).send("Dados mínimos incompletos");
   const newExam = {
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/edit/:id", async (req, res) => {
+router.put("/edit/:id", auth("Administrador"), async (req, res) => {
   const { name, enabled = true } = req.body;
   if (!name) return res.status(400).send("Dados incompletos");
   const exam = {
@@ -28,8 +28,9 @@ router.put("/edit/:id", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/", async (req, res) => {
-  let response = await ExamsService.FetchExams();
+router.get("/", auth(), async (req, res) => {
+  let query = req.user.role === "Administrador" ? {} : { enabled: true };
+  let response = await ExamsService.FetchExams(query);
   res.status(response.statusCode).send(response.payload);
 });
 

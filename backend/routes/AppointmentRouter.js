@@ -6,7 +6,7 @@ const router = express.Router();
 const dayjs = require("dayjs");
 const auth = require("../middleware/auth");
 
-router.post("/createAppointment", async (req, res) => {
+router.post("/createAppointment", auth(), async (req, res) => {
   const { patientId, doctorId, date, tipo } = req.body;
 
   if (!patientId || !doctorId || !date || !tipo)
@@ -23,18 +23,18 @@ router.post("/createAppointment", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/byPatient/:id", async (req, res) => {
+router.get("/byPatient/:id", auth(), async (req, res) => {
   let id = req.params.id;
   let response = await AppointmentService.FetchPatientAppointments(id);
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/", async (req, res) => {
+router.get("/", auth(), async (req, res) => {
   let response = await AppointmentService.FetchAppointments({ cancel: false });
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth(), async (req, res) => {
   let id = req.params.id;
   let payload = {
     _id: id,
@@ -44,7 +44,7 @@ router.get("/:id", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/cancel/:id", async (req, res) => {
+router.put("/cancel/:id", auth(), async (req, res) => {
   let id = req.params.id;
   let payload = {
     cancel: true,
@@ -53,7 +53,7 @@ router.put("/cancel/:id", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.post("/getSlots", async (req, res) => {
+router.post("/getSlots", auth(), async (req, res) => {
   const { doctorId, date } = req.body;
 
   if (!doctorId || !date)
@@ -73,7 +73,7 @@ router.post("/getSlots", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.put("/appointmentResults", async (req, res) => {
+router.put("/appointmentResults", auth(), async (req, res) => {
   const appointment = req.body;
 
   if (!appointment) return res.status(400).send({ erro: "Dados incompletos" });
@@ -82,7 +82,7 @@ router.put("/appointmentResults", async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
-router.get("/decryptedNotes/:id", async (req, res) => {
+router.get("/decryptedNotes/:id", auth("Médico"), async (req, res) => {
   const id = req.params.id;
   let response = await AppointmentService.LoadNotes(id);
   res.status(response.statusCode).send(response.payload);

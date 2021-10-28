@@ -46,7 +46,8 @@ module.exports = class UserService {
         patientId,
       })
         .sort({ date: 1 })
-        .populate("doctorId");
+        .populate("doctorId")
+        .populate("exams.result");
       return {
         payload: appointments.filter((el) => !el.cancel),
         statusCode: 200,
@@ -82,6 +83,7 @@ module.exports = class UserService {
     try {
       let appointment = await AppointmentModel.findById(dados._id);
       const patient = appointment.patientId;
+      const doctor = appointment.doctorId;
       let notas = JSON.stringify(dados.doctorNotes);
       let encryptedNotes = await EncryptionPair.encryptData(patient, notas);
       appointment.encryptedNotes = encryptedNotes;
@@ -91,6 +93,7 @@ module.exports = class UserService {
         let examData = {
           nameOfExam: el.name,
           patientId: patient,
+          doctorId: doctor,
         };
         let fileId = await FileService.CreateFile(examData);
         if (fileId.erro) throw "Falha ao salvar dados";
