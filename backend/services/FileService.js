@@ -56,7 +56,7 @@ module.exports = class FileService {
     try {
       let file = await FileModel.findById(id);
       let downloadCode = crypto.randomBytes(32).toString("hex");
-      let mailText = `<p>Seu exame ${file.nameOfExam} está liberado.</p><p><strong>Código para download do exame:</strong> ${downloadCode}</p><p> <a href="https://clinimedbh.herokuapp.com/download/${file._id}">Clique aqui para realizar o donwload do resultado</a></p>`;
+      let mailText = `<p>Seu exame ${file.nameOfExam} está liberado.</p><p><strong>Código para download do exame:</strong> ${downloadCode}</p><p> <a href="https://clinimedbh.herokuapp.com/#/download/${file._id}">Clique aqui para realizar o donwload do resultado</a></p>`;
       await mailer(
         patientEmail,
         `Resultado de exames - ${file.nameOfExam}`,
@@ -81,7 +81,7 @@ module.exports = class FileService {
       for (const el in files) {
         let file = files[el];
         let uploadCode = crypto.randomBytes(32).toString("hex");
-        let mailText = `<p>Nova solicitação de exames</p><p><strong>Tipo de exame:</strong>${file.nameOfExam}</p><p><strong>Código para envio do exame:</strong> ${uploadCode}</p><p> <a href="https://clinimedbh.herokuapp.com/upload/${file._id}">Clique aqui para enviar os resultados</a></p>`;
+        let mailText = `<p>Nova solicitação de exames</p><p><strong>Tipo de exame:</strong>${file.nameOfExam}</p><p><strong>Código para envio do exame:</strong> ${uploadCode}</p><p> <a href="https://clinimedbh.herokuapp.com/#/upload/${file._id}">Clique aqui para enviar os resultados</a></p>`;
         await mailer(
           process.env.LAB_MAIL,
           `Nova solicitação de exames - ${file.nameOfExam}`,
