@@ -39,6 +39,12 @@
       <template v-slot:[`item.hour`]="{ item }">
         {{ formatHour(item.date) }}
       </template>
+      <template v-slot:[`item.start`]="{ item }">
+        {{ formatHour(item.start) }}
+      </template>
+      <template v-slot:[`item.end`]="{ item }">
+        {{ formatHour(item.end) }}
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -97,6 +103,18 @@ export default {
       {
         text: "Hora",
         value: "hour",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "Início",
+        value: "start",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "Fim",
+        value: "end",
         sortable: false,
         align: "center",
       },
