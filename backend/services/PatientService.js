@@ -5,6 +5,16 @@ module.exports = class PatientService {
 
   static async CreatePatient(patient) {
     try {
+      let query = {
+        name: patient.name,
+        dateOfBirth: patient.dateOfBirth,
+      };
+      const alreadyExists = await PatientModel.find(query);
+      if (alreadyExists.length)
+        return {
+          payload: "Paciente já possui cadastro na base",
+          statusCode: 400,
+        };
       let newPatient = new PatientModel(patient);
       await newPatient.save();
       return {
@@ -33,6 +43,16 @@ module.exports = class PatientService {
   }
 
   static async EditPatient(id, changes) {
+    let query = {
+      name: changes.name,
+      dateOfBirth: changes.dateOfBirth,
+    };
+    const alreadyExists = await PatientModel.find(query);
+    if (alreadyExists.length && alreadyExists._id != id)
+      return {
+        payload: "Paciente já possui cadastro na base",
+        statusCode: 400,
+      };
     let patient = await PatientModel.findByIdAndUpdate(id, changes);
     if (patient)
       return {

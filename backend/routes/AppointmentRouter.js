@@ -23,6 +23,25 @@ router.post("/createAppointment", auth(), async (req, res) => {
   res.status(response.statusCode).send(response.payload);
 });
 
+router.put("/edit/:id", auth(), async (req, res) => {
+  const { patientId, doctorId, date, tipo } = req.body;
+
+  if (!patientId || !doctorId || !date || !tipo)
+    return res.status(400).send({ erro: "Dados incompletos" });
+
+  const id = req.params.id;
+
+  const changes = {
+    patientId,
+    doctorId,
+    date,
+    tipo,
+  };
+
+  let response = await AppointmentService.EditAppointment(id, changes);
+  res.status(response.statusCode).send(response.payload);
+});
+
 router.get("/byPatient/:id", auth(), async (req, res) => {
   let id = req.params.id;
   let response = await AppointmentService.FetchPatientAppointments(id);

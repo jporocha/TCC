@@ -36,7 +36,9 @@ import axios from "axios";
 export default {
   computed: {
     boxName() {
-      return this.dataId ? "Edição de exame" : "Cadastro de exame";
+      return this.entry && this.entry._id
+        ? "Edição de exame"
+        : "Cadastro de exame";
     },
   },
   props: {

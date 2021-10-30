@@ -5,8 +5,9 @@ module.exports = class ExamsService {
 
   static async CreateExam(exam) {
     try {
-      let query = Object.assign({}, exam);
-      delete query.enabled;
+      let query = {
+        name: exam.name,
+      };
       const alreadyExists = await ExamsModel.find(query);
       if (alreadyExists.length)
         return {
@@ -42,6 +43,15 @@ module.exports = class ExamsService {
   }
 
   static async EditExam(id, data) {
+    let query = {
+      name: data.name,
+    };
+    const alreadyExists = await ExamsModel.find(query);
+    if (alreadyExists.length && alreadyExists._id != id)
+      return {
+        payload: "Já existe exame com mesmo nome comercial na base",
+        statusCode: 400,
+      };
     let altered = await ExamsModel.findByIdAndUpdate(id, data);
     if (altered)
       return {

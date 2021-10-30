@@ -99,7 +99,6 @@ module.exports = class UserService {
         let payload = el;
         payload.result = fileId;
         appointment.exams.push(payload);
-        teste.push(payload);
       }
       dados.prescription.forEach((el) => {
         appointment.prescription.push(el);

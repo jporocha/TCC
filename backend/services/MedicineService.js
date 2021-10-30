@@ -5,8 +5,9 @@ module.exports = class MedicineService {
 
   static async CreateMedication(medicine) {
     try {
-      let query = Object.assign({}, medicine);
-      delete query.enabled;
+      let query = {
+        brandLabel: medicine.brandLabel,
+      };
       const alreadyExists = await MedicineModel.find(query);
       if (alreadyExists.length)
         return {
@@ -42,6 +43,15 @@ module.exports = class MedicineService {
   }
 
   static async EditMedication(id, data) {
+    let query = {
+      brandLabel: data.brandLabel,
+    };
+    const alreadyExists = await MedicineModel.find(query);
+    if (alreadyExists.length && alreadyExists._id != id)
+      return {
+        payload: "Já existe medicamento com mesmo nome comercial na base",
+        statusCode: 400,
+      };
     let altered = await MedicineModel.findByIdAndUpdate(id, data);
     if (altered)
       return {

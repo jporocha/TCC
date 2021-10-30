@@ -48,7 +48,9 @@ import axios from "axios";
 export default {
   computed: {
     boxName() {
-      return this.dataId ? "Edição de medicamento" : "Inserir nova medicação";
+      return this.entry && this.entry._id
+        ? "Edição de medicamento"
+        : "Inserir nova medicação";
     },
   },
   props: {

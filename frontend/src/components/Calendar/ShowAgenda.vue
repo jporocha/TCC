@@ -109,13 +109,18 @@
       @click:event="viewEvent"
     ></v-calendar>
     <v-dialog v-model="showDialog" max-width="600px">
-      <NewAppointment :key="appointmentKey" v-on:close="closeDialog" />
+      <NewAppointment
+        :key="appointmentKey"
+        v-on:close="closeDialog"
+        :idConsulta="loadedId"
+      />
     </v-dialog>
     <v-dialog v-model="showAppointment" max-width="600px">
       <EditAppointment
         :key="idAppointment"
         :id="idAppointment"
         v-on:close="closeEdit"
+        v-on:edit="editAppointment"
       />
     </v-dialog>
   </div>
@@ -150,6 +155,7 @@ export default {
     events: [],
     doctors: ["Todos", "João Paulo de Oliveira Rocha", "Kassio Lohner Prado"],
     doctorIndex: 0,
+    loadedId: null,
   }),
   mounted() {
     this.$refs.calendar.checkChange();
@@ -176,6 +182,11 @@ export default {
     closeEdit(update) {
       this.showAppointment = false;
       if (update) this.fetchAppointments();
+    },
+    editAppointment(payload) {
+      this.loadedId = payload._id;
+      this.appointmentKey++;
+      this.showDialog = true;
     },
     fetchAppointments() {
       axios

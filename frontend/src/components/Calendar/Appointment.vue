@@ -205,15 +205,34 @@ export default {
     allowed(data) {
       return this.filterDates.includes(dayjs(data).format("YYYY-MM-DD"));
     },
+    loadAppointment() {
+      axios
+        .get(`/appointment/${this.idConsulta}`)
+        .then((res) => {
+          let consulta = res.data[0];
+          this.patient = consulta.patientId._id;
+          this.doctor = consulta.doctorId._id;
+          this.appointmentDate = dayjs(consulta.date).format("YYYY-MM-DD");
+          this.selectedSlot = dayjs(consulta.date).format("HH:mm");
+          this.selectedTipo = consulta.tipo;
+          this.generateTimeTable();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     saveData() {
       let method = this.idConsulta ? "put" : "post";
       let address = this.idConsulta
         ? `edit/${this.idConsulta}`
         : "createAppointment";
+      const hora = dayjs(
+        `${this.appointmentDate}T${this.selectedSlot}:00.000`
+      ).format("YYYY-MM-DD HH:mm");
       let payload = {
         patientId: this.patient,
         doctorId: this.doctor,
-        date: `${this.appointmentDate}T${this.selectedSlot}:00.000`,
+        date: hora,
         tipo: this.selectedTipo,
       };
       this.busy = true;
@@ -251,7 +270,7 @@ export default {
           let currentIndex = 0;
           let maxIndex = unavailable.length;
           let duration = this.selectedTipo === "Consulta" ? 30 : 15;
-          let start = dayjs(`${this.appointmentDate}T08:00:00.000`);
+          let start = dayjs(`${this.appointmentDate} 08:00`);
           this.availableSlots = [];
           while (start.hour() < 18) {
             if (currentIndex === maxIndex) {
@@ -367,7 +386,7 @@ export default {
   mounted() {
     this.loadDoctors();
     this.loadPatients();
-    this.generateTimeTable();
+    if (this.idConsulta) this.loadAppointment();
   },
 };
 </script>

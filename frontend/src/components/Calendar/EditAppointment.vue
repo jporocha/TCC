@@ -13,13 +13,21 @@
     <v-card-actions v-if="appointment">
       <v-btn
         small
-        :disabled="!!appointment.end"
+        :disabled="!!appointment.start"
         color="red"
         @click="cancelAppointment"
         v-if="user.role === 'Recepção'"
         >Cancelar</v-btn
       >
       <v-spacer></v-spacer>
+      <v-btn
+        small
+        :disabled="!!appointment.start"
+        color="blue"
+        @click="editAppointment"
+        v-if="user.role === 'Recepção'"
+        >Editar</v-btn
+      >
       <v-btn
         small
         :disabled="!!patient || !!appointment.end"
@@ -106,6 +114,10 @@ export default {
             icon: "mdi-alert",
           });
         });
+    },
+    editAppointment() {
+      this.$emit("edit", this.appointment);
+      this.$emit("close", false);
     },
     startAppointment() {
       this.appointment.doctorNotes = {
