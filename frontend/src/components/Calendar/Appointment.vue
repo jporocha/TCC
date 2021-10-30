@@ -226,9 +226,9 @@ export default {
       let address = this.idConsulta
         ? `edit/${this.idConsulta}`
         : "createAppointment";
-      const hora = dayjs(
-        `${this.appointmentDate}T${this.selectedSlot}:00.000`
-      ).format("YYYY-MM-DD HH:mm");
+      const hora = dayjs(`${this.appointmentDate}T${this.selectedSlot}:00.000`)
+        .add(3, "j")
+        .format("YYYY-MM-DD HH:mm");
       let payload = {
         patientId: this.patient,
         doctorId: this.doctor,
