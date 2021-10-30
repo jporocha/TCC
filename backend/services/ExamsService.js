@@ -45,11 +45,12 @@ module.exports = class ExamsService {
   static async EditExam(id, data) {
     let query = {
       name: data.name,
+      _id: { $ne: id },
     };
     const alreadyExists = await ExamsModel.find(query);
-    if (alreadyExists.length && alreadyExists._id != id)
+    if (alreadyExists.length)
       return {
-        payload: "Já existe exame com mesmo nome comercial na base",
+        payload: "Já existe exame com mesmo nome na base",
         statusCode: 400,
       };
     let altered = await ExamsModel.findByIdAndUpdate(id, data);

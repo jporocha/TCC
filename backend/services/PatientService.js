@@ -46,9 +46,10 @@ module.exports = class PatientService {
     let query = {
       name: changes.name,
       dateOfBirth: changes.dateOfBirth,
+      _id: { $ne: id },
     };
     const alreadyExists = await PatientModel.find(query);
-    if (alreadyExists.length && alreadyExists._id != id)
+    if (alreadyExists.length)
       return {
         payload: "Paciente já possui cadastro na base",
         statusCode: 400,

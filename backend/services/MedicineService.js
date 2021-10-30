@@ -45,9 +45,10 @@ module.exports = class MedicineService {
   static async EditMedication(id, data) {
     let query = {
       brandLabel: data.brandLabel,
+      _id: { $ne: id },
     };
     const alreadyExists = await MedicineModel.find(query);
-    if (alreadyExists.length && alreadyExists._id != id)
+    if (alreadyExists.length)
       return {
         payload: "Já existe medicamento com mesmo nome comercial na base",
         statusCode: 400,
