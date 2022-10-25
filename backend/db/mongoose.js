@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 
-const connectionString = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@tcc.uzrpa.mongodb.net/${process.env.MONGO_BASE}`;
+const connectionString = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.gnpzopc.mongodb.net/${process.env.MONGO_BASE}`;
 
 mongoose.connect(connectionString, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
 });
 
 const db = mongoose.connection;
